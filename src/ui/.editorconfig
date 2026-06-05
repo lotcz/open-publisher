@@ -1,0 +1,19 @@
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+tab_width = 4
+indent_style = tab
+insert_final_newline = true
+max_line_length = 150
+
+[{*.css,*.less}]
+indent_style = tab
+
+[{*.yaml,*.yml,*.json}]
+indent_style = space
+indent_size = 2
+
+[{*.md,*.MD}]
+indent_style = space
+indent_size = 4

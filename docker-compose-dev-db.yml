@@ -1,0 +1,10 @@
+services:
+  dev-db:
+    image: postgres:17.2-alpine
+    container_name: op-dev-db
+    environment:
+      - POSTGRES_USER=op
+      - POSTGRES_PASSWORD=op
+      - POSTGRES_DB=op
+    ports:
+      - 5432:5432

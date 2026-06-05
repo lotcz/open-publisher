@@ -1,0 +1,12 @@
+services:
+  deploy:
+    image: cytopia/ansible:latest-tools
+    env_file:
+      - .env
+    volumes:
+      - ./ansible:/ansible
+      - ../target:/build
+      - ${SSH_PRIVATE_KEY_FILE}:/var/ansible-ssh-key
+    working_dir: /ansible
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

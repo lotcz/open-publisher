@@ -1,0 +1,36 @@
+package eu.zavadil.openpublisher.service;
+
+import eu.zavadil.java.spring.common.paging.PagingUtils;
+import eu.zavadil.openpublisher.data.destination.Destination;
+import eu.zavadil.openpublisher.data.destination.DestinationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DestinationsService {
+
+	@Autowired
+	DestinationRepository repository;
+
+	public Page<Destination> search(int page, int size, String search, String sorting) {
+		return this.repository.search(search, PagingUtils.of(page, size, sorting));
+	}
+
+	public Destination loadById(int id) {
+		return this.repository.findById(id).orElse(null);
+	}
+
+	public Destination save(Destination destination) {
+		return this.repository.save(destination);
+	}
+
+	public void delete(int id) {
+		this.repository.deleteById(id);
+	}
+
+	public void delete(Destination destination) {
+		if (destination.getId() != null) this.delete(destination.getId());
+	}
+
+}
