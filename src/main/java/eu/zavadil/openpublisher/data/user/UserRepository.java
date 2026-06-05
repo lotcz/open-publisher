@@ -16,7 +16,7 @@ public interface UserRepository extends EntityRepository<User> {
 		"""
 				select u
 				from User u
-				where u.name ILIKE %:search% OR u.email ILIKE %:search%
+				where u.email ILIKE %:search%
 			"""
 	)
 	Page<User> search(String search, Pageable pr);

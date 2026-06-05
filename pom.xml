@@ -14,9 +14,9 @@
 
 	<groupId>eu.zavadil.openpublisher</groupId>
 	<artifactId>open-publisher</artifactId>
-	<version>2.0.0</version>
+	<version>0.0.1</version>
 	<name>Open Publisher</name>
-	
+
 	<properties>
 		<java.version>25</java.version>
 		<jackson.version>2.19.2</jackson.version>
