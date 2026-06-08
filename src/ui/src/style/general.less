@@ -1,0 +1,58 @@
+/**
+	Styles common for the whole project.
+*/
+
+:root {
+	--font-family: "Arial Rounded MT Bold", sans-serif;
+}
+
+body {
+	font-family: var(--font-family);
+	font-size: 12pt;
+}
+
+strong, .strong, h1, h2, h3, h4 {
+	font-weight: bold;
+}
+
+.light, small {
+
+}
+
+a {
+
+}
+
+a:hover {
+	text-decoration: none;
+
+}
+
+.error {
+	color: red;
+}
+
+/* TABLES */
+
+table.v-center td,
+td.v-center {
+	vertical-align: center;
+}
+
+/* FORMS */
+
+form label, .form-label {
+	font-weight: var(--weight-light);
+	margin: 0;
+	font-size: .85em;
+	opacity: 0.75;
+}
+
+/* DARK */
+
+html[data-bs-theme=dark] {
+
+	h1, h2, h3, h4 {
+		color: var(--bs-body-color) !important;
+	}
+}

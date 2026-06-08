@@ -60,7 +60,7 @@ public class ArticlesService {
 		if (image != null) this.imageRepository.delete(image);
 	}
 
-	public ArticleImage uploadImage(int articleId, String originalFileName, byte[] imageBytes) {
+	public ArticleImage uploadArticleImage(int articleId, String originalFileName, byte[] imageBytes) {
 		ArticleImage image = this.loadImage(articleId, originalFileName);
 		if (image != null) return image;
 		ImageHealthPayload health = this.imagez.upload(originalFileName, imageBytes);

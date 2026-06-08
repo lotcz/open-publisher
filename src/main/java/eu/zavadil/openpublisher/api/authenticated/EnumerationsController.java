@@ -1,7 +1,8 @@
-package eu.zavadil.openpublisher.api;
+package eu.zavadil.openpublisher.api.authenticated;
 
 import eu.zavadil.java.util.EnumUtils;
 import eu.zavadil.openpublisher.data.SyncState;
+import eu.zavadil.openpublisher.data.article.ArticleState;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.base-url}/enumerations")
+@RequestMapping("${api.base-url}/authenticated/enumerations")
 @Tag(name = "Enumerations")
 @Slf4j
 public class EnumerationsController {
@@ -27,4 +28,11 @@ public class EnumerationsController {
 		return EnumUtils.namesOf(SyncState.class);
 	}
 
+	@GetMapping("article-states")
+	public List<String> articleStates() {
+		return EnumUtils.namesOf(ArticleState.class);
+	}
+
 }
+
+

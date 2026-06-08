@@ -1,0 +1,10 @@
+prod:
+  hosts:
+    prod.zavadil.eu:
+  vars:
+    target_dir: /opt/merch-master
+    application_files: conf/prod
+    service_name: merch-master
+    spring_env: prod
+    proxy_port: 8082
+    domain: open-publisher.zavadil.eu

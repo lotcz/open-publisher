@@ -1,0 +1,55 @@
+- name: Deploy or update WorldNews server
+  hosts: all
+  become: no
+  vars:
+    ansible_ssh_private_key_file: "/var/ansible-ssh-key"
+    build_dir: "/build"
+    binary_name: "merch-master.jar"
+
+  tasks:
+    - name: Ensure /rsa-store directory exists
+      file:
+        path: "{{ target_dir }}/rsa-store"
+        state: directory
+        mode: '0755'
+    - name: Copy binary to remote host
+      copy:
+        src: "{{ build_dir }}/{{ binary_name }}"
+        dest: "{{ target_dir }}"
+        mode: '0770'
+    - name: Copy application files to remote host
+      copy:
+        src: "{{ item }}"
+        dest: "{{ target_dir }}/{{ item | basename }}"
+        mode: '0640'
+      with_fileglob:
+        - "{{ application_files }}/*"
+    - name: Define systemd service unit content
+      set_fact:
+        service_unit_content: |
+          [Unit]
+          Description=Java Application Service for {{ service_name }}
+          After=network.target
+          
+          [Service]
+          ExecStart=/usr/bin/java -jar -Dspring.profiles.active={{ spring_env }} {{ target_dir }}/{{ binary_name }}
+          WorkingDirectory={{ target_dir }}
+          Restart=always
+          User=root
+          
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Ensure systemd service file is present and up to date
+      copy:
+        content: "{{ service_unit_content }}"
+        dest: "/etc/systemd/system/{{ service_name }}.service"
+        mode: '0644'
+    - name: Reload systemd to recognize new service
+      systemd:
+        daemon_reload: yes
+    - name: Restart the service
+      systemd:
+        name: "{{ service_name }}"
+        state: restarted
+        enabled: yes

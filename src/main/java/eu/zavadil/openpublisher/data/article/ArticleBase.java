@@ -1,12 +1,13 @@
 package eu.zavadil.openpublisher.data.article;
 
 import eu.zavadil.java.spring.common.entity.EntityBase;
-import eu.zavadil.java.spring.common.entity.EntityWithNameBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.Instant;
 
@@ -14,6 +15,13 @@ import java.time.Instant;
 @Data
 @MappedSuperclass
 public class ArticleBase extends EntityBase {
+
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private ArticleState articleState = ArticleState.Draft;
+
+	private Instant publishDate;
+
+	private String imageName;
 
 	static final int HEADER_LENGTH = 255;
 
@@ -36,7 +44,5 @@ public class ArticleBase extends EntityBase {
 	}
 
 	private String contentHtml;
-
-	private Instant publishDate;
 
 }

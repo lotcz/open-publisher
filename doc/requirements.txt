@@ -1,0 +1,28 @@
+- role editor/správce/návštěvník/API
+- destinace Bedekerprague.eu, pragmoon.cz, designhg.cz.
+- vkládání článků, wysiwyg
+- import článků z docx
+- hromadný upload obrázků
+- jednorázové přihlášení pomocí URL odkazu platného 24h
+- článek má více autorů (správce obsahu, partner)
+- stavy článku (draft/schváleno/zrušeno)
+- synchronizace (PHP client -> zEngine, wordpress)
+- Odkazy zaslané naším inzerentům musí být generované a funkční např. ještě 24 hodin od stisknutí tlačítka Odeslat podklady (pokud by zaslali špatné/neúplné, ať případně mohou zaslat ještě jednou nové a předchozí si už smaže manuálně správce našeho obsahu přímo na webech).
+- potřebujeme rozlišit, který uživatel článek buď nahrál nebo kdo z uživatelů vygeneroval odkaz pro někoho
+- pokud budou ve wordu nadpisy, potřebujeme, aby měly stejné tagy jako u nás na webech… viz. Designhg, podnadpisy máme <h2>, ve wordu nám to takto většinou nepřichází
+
+
+
+Admin
+
+- vložení/úprava článku
+- vygenerování jednorázového přístupu pro článek
+- správa editorů
+
+Editor
+
+- vložení/úprava článku
+
+Návštěvník
+
+- úprava článku podle URL

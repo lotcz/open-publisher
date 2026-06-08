@@ -1,2 +1,2 @@
-cp src/shared/config/conf.prod.json src/shared/config/conf.json
+cp src/config/conf.prod.json src/config/conf.json
 docker compose up build

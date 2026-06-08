@@ -1,4 +1,4 @@
-package eu.zavadil.openpublisher.api;
+package eu.zavadil.openpublisher.api.admin;
 
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;

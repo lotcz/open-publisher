@@ -1,4 +1,4 @@
-package eu.zavadil.openpublisher.api;
+package eu.zavadil.openpublisher.api.authenticated;
 
 import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
@@ -19,8 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.base-url}/editor/accounts")
-@Tag(name = "Accounts")
+@RequestMapping("${api.base-url}/authenticated/articles")
+@Tag(name = "Articles")
 @Slf4j
 public class ArticlesController {
 
@@ -76,7 +76,7 @@ public class ArticlesController {
 	) {
 		String originalFileName = FileNameUtils.extractFileName(file.getOriginalFilename());
 		try {
-			return this.articlesService.uploadImage(id, originalFileName, file.getBytes());
+			return this.articlesService.uploadArticleImage(id, originalFileName, file.getBytes());
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new ServerErrorException(e);

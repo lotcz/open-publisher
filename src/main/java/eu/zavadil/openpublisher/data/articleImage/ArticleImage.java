@@ -14,5 +14,7 @@ public class ArticleImage extends EntityBase {
 
 	private String imageName;
 
+	private String originalName;
+
 	private int articleId;
 }

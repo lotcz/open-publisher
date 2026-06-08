@@ -1,0 +1,96 @@
+- name: Setup SSL Proxy Server on Ubuntu
+  hosts: all
+  become: no
+  vars:
+    proxy_target: "http://localhost:{{ proxy_port }}"  # Change to your upstream service
+    ansible_ssh_private_key_file: "/var/ansible-ssh-key"
+
+  tasks:
+    - name: Set nginx proxy config as fact
+      set_fact:
+        nginx_proxy_config: |
+          server {
+              listen 80;
+              client_max_body_size 50M;
+              server_name {{ domain }};
+
+              location / {
+                  proxy_pass {{ proxy_target }};
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+          
+                  proxy_connect_timeout       300;
+                  proxy_send_timeout          300;
+                  proxy_read_timeout          300;
+                  send_timeout                300;
+              }
+          }
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Ensure nginx is installed
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure certbot and python3-certbot-nginx are installed
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Write Nginx proxy configuration to file
+      copy:
+        content: "{{ nginx_proxy_config }}"
+        dest: "/etc/nginx/sites-available/{{ domain }}"
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload nginx
+
+    - name: Enable site by creating symlink if not exists
+      file:
+        src: "/etc/nginx/sites-available/{{ domain }}"
+        dest: "/etc/nginx/sites-enabled/{{ domain }}"
+        state: link
+      notify: Reload nginx
+
+    - name: Remove default nginx site if enabled
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Reload nginx
+
+    - name: Test nginx configuration
+      command: nginx -t
+      register: nginx_test
+      failed_when: "'successful' not in nginx_test.stderr"
+      changed_when: false
+
+    - name: Obtain/renew SSL certificate with certbot
+      command: >
+        certbot --nginx -d {{ domain }}
+        --non-interactive --agree-tos -m admin@{{ domain }} --redirect
+      register: certbot_result
+      changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout and certbot_result.rc == 0"
+
+    - name: Ensure certbot renew cron job exists
+      cron:
+        name: "Certbot renew"
+        minute: 0
+        hour: 3
+        job: "/usr/bin/certbot renew --quiet"
+        state: present
+
+  handlers:
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: reloaded

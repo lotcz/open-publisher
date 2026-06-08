@@ -48,7 +48,7 @@ public class SecurityConfig {
 	}
 
 	/**
-	 * Protect everything starting with /api except /api/status/**, /api/imagez/** and /api/designer/**
+	 * Protect everything starting with /api/admin or api/editor or api/guest
 	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -62,16 +62,17 @@ public class SecurityConfig {
 			.addFilterBefore(this.authenticationFilter, AuthorizationFilter.class)
 			.authorizeHttpRequests(auth ->
 				auth
-					.requestMatchers(
-						String.format("%s/status/**", this.apiBaseUrl),
-						String.format("%s/images/**", this.apiBaseUrl)
-					)
-					.permitAll()
 					// ── Admin-only endpoint
 					.requestMatchers(String.format("%s/admin/**", this.apiBaseUrl))
 					.hasRole("ADMIN")
-					.anyRequest()
+					// ── Editor-only endpoint
+					.requestMatchers(String.format("%s/editor/**", this.apiBaseUrl))
+					.hasAnyRole("ADMIN", "EDITOR")
+					// ── authenticated-only endpoint
+					.requestMatchers(String.format("%s/authenticated/**", this.apiBaseUrl))
 					.authenticated()
+					.anyRequest()
+					.permitAll()
 			);
 		return http.build();
 	}

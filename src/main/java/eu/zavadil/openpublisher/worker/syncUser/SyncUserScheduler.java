@@ -14,7 +14,7 @@ public class SyncUserScheduler {
 
 	@Scheduled(fixedDelay = 5 * 1000, initialDelay = 3 * 1000)
 	public void execute() {
-		log.info("syncing users");
+		// log.info("syncing users");
 		this.worker.process();
 	}
 
