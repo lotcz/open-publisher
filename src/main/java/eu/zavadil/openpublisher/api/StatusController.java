@@ -1,6 +1,5 @@
 package eu.zavadil.openpublisher.api;
 
-import eu.zavadil.java.oauth.common.payload.ServerOAuthInfoPayload;
 import eu.zavadil.openpublisher.stats.OpenPublisherStats;
 import eu.zavadil.openpublisher.stats.StatsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,13 +19,7 @@ public class StatusController {
 
 	@Value("${app.version}")
 	String version;
-
-	@Value("${oauth.self-name}")
-	String appName;
-
-	@Value("${oauth.url}")
-	String oauthUrl;
-
+	
 	@Autowired
 	StatsService statsService;
 
@@ -42,9 +35,4 @@ public class StatusController {
 		return this.statsService.getStats();
 	}
 
-	@GetMapping("oauth/info")
-	@Operation(summary = "Get server oauth info.")
-	public ServerOAuthInfoPayload info() {
-		return new ServerOAuthInfoPayload(this.oauthUrl, this.appName, this.version);
-	}
 }

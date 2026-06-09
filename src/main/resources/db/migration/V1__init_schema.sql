@@ -1,6 +1,3 @@
-create type tp_sync_state AS ENUM ('Pending', 'Synced', 'Failed');
-create cast	(varchar AS tp_sync_state) WITH INOUT AS IMPLICIT;
-
 create type tp_user_role AS ENUM ('Admin', 'Editor', 'Guest');
 create cast	(varchar AS tp_user_role) WITH INOUT AS IMPLICIT;
 
@@ -9,14 +6,14 @@ CREATE TABLE usr (
 	created_on timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	last_updated_on timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	email varchar(255) NOT NULL,
-	oauth_subject varchar(255) NULL,
+	password_algorithm varchar(10),
+    password_hash varchar(255),
+    password_salt varchar(100),
 	is_active BOOLEAN NOT NULL DEFAULT false,
-	sync_state tp_sync_state NOT NULL DEFAULT 'Pending',
 	user_role tp_user_role NOT NULL DEFAULT 'Guest'
 );
 
 CREATE INDEX idx_user_email ON usr (email);
-CREATE INDEX idx_user_sync_state ON usr (sync_state);
 
 create type tp_article_state AS ENUM ('Draft', 'Published', 'Hidden');
 create cast	(varchar AS tp_article_state) WITH INOUT AS IMPLICIT;
@@ -32,7 +29,7 @@ CREATE TABLE article (
 	content_html text NULL,
 	publish_date timestamp,
 	owner_id int4 NOT NULL,
-	CONSTRAINT fk_article_owner_user_id FOREIGN KEY (owner_id) REFERENCES usr(id) ON DELETE SET NULL,
+	CONSTRAINT fk_article_owner_user_id FOREIGN KEY (owner_id) REFERENCES usr(id),
 	partner_id int4 NULL,
 	CONSTRAINT fk_article_partner_user_id FOREIGN KEY (partner_id) REFERENCES usr(id) ON DELETE SET NULL
 );

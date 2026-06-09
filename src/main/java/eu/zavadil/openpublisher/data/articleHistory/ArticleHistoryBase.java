@@ -1,8 +1,6 @@
 package eu.zavadil.openpublisher.data.articleHistory;
 
 import eu.zavadil.java.spring.common.entity.EntityBase;
-import eu.zavadil.openpublisher.data.SyncState;
-import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

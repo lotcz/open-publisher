@@ -2,7 +2,6 @@ package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
-import eu.zavadil.openpublisher.data.SyncState;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.service.UsersService;
@@ -29,6 +28,14 @@ public class UsersController {
 		return user;
 	}
 
+	@PutMapping("profile/password")
+	public void changeMyPassword(
+		@AuthenticationPrincipal User user,
+		@RequestBody String password
+	) {
+		this.usersService.changeUserPassword(user.getId(), password);
+	}
+
 	@GetMapping("")
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public JsonPage<User> loadPaged(
@@ -49,7 +56,6 @@ public class UsersController {
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public User insert(@RequestBody User document) {
 		document.setId(null);
-		document.setSyncState(SyncState.Pending);
 		return this.usersService.save(document);
 	}
 
@@ -64,6 +70,15 @@ public class UsersController {
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public void delete(@PathVariable int id) {
 		this.usersService.delete(id);
+	}
+
+	@PutMapping("{id}/password")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
+	public void changePassword(
+		@PathVariable int id,
+		@RequestBody String password
+	) {
+		this.usersService.changeUserPassword(id, password);
 	}
 
 }

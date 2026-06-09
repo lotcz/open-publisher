@@ -24,14 +24,8 @@ import java.io.IOException;
 @Slf4j
 public class AuthenticationFilter extends GenericFilterBean {
 
-	@Value("${api.auth-header-name}")
+	@Value("${oauth.header-name}")
 	private String authHeaderName;
-
-	@Value("${oauth.self-name}")
-	private String selfName;
-
-	@Value("${oauth.url}")
-	String oAuthUrl;
 
 	@Autowired
 	JwtEncoder jwtEncoder;
@@ -45,16 +39,9 @@ public class AuthenticationFilter extends GenericFilterBean {
 			if (StringUtils.safeStartsWith(header, "Bearer ")) {
 				String tokenRaw = StringUtils.safeSubstr(header, 7, header.length() - 7);
 				JwtAccessToken token = jwtEncoder.verifyAndDecodeToken(tokenRaw, JwtAccessToken.class);
-				if (!StringUtils.safeEquals(this.selfName, token.getAudience())) {
-					log.trace("Audience mismatch! Required: {}, Provided: {}", this.selfName, token.getAudience());
-					throw new RuntimeException("Invalid audience!");
-				}
-				if (!StringUtils.safeEquals(this.oAuthUrl, token.getIssuer())) {
-					log.trace("Issuer mismatch! Required: {}, Provided: {}", this.oAuthUrl, token.getIssuer());
-					throw new RuntimeException("Invalid issuer!");
-				}
+				this.usersService.verifyAccessToken(token);
 				String subject = token.getSubject();
-				User user = this.usersService.loadByOAuthSubject(subject);
+				User user = this.usersService.loadByEmail(subject);
 				if (user != null) return new UserAuthentication(user);
 			}
 		} catch (Exception e) {

@@ -1,4 +1,4 @@
-- article editing
+- better article editing
 - change password
 - invitation email
 - grant guest access

@@ -2,7 +2,7 @@ import {Form, Spinner, Stack} from "react-bootstrap";
 import {useParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
@@ -11,6 +11,9 @@ import BackIconLink from "../../general/BackIconLink";
 import RefreshIconButton from "../../general/RefreshIconButton";
 import SyncStateSelect from "./SyncStateSelect";
 import UserRoleSelect from "./UserRoleSelect";
+import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogContext";
+import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
+import {BiShekel} from "react-icons/bi";
 
 export default function UserDetail() {
 	const {id} = useParams();
@@ -18,6 +21,8 @@ export default function UserDetail() {
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
+	const changePasswordDialog = useContext(ChangePasswordDialogContext);
+	const waitingDialog = useContext(WaitingDialogContext);
 	const [data, setData] = useState<User>();
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
@@ -70,18 +75,43 @@ export default function UserDetail() {
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
-		confirmDialog.confirm("Confirm", "Really delete this user? Consider making it inactive.", () => {
-			setDeleting(true);
-			restClient
-				.users
-				.delete(Number(data.id))
-				.then((f) => {
-					navigator.admin.users.list();
-				})
-				.catch((e: Error) => userAlerts.err(e))
-				.finally(() => setDeleting(false));
-		});
+		confirmDialog.confirm(
+			"Smazat uživatele",
+			"Opravdu si přejete smazat tohoto uživatele? Pokud je uživatel autorem článků, nepůjde smazat a je lepší jej pouze deaktivovat.",
+			() => {
+				setDeleting(true);
+				restClient
+					.users
+					.delete(Number(data.id))
+					.then((f) => {
+						navigator.admin.users.list();
+					})
+					.catch((e: Error) => userAlerts.err(e))
+					.finally(() => setDeleting(false));
+			}
+		);
 	}, [restClient, data, userAlerts, navigator, confirmDialog]);
+
+	const changePassword = useCallback(() => {
+		if (!data?.id) return;
+		changePasswordDialog.show(
+			{
+				name: "Změna hesla",
+				text: `Vložte nové heslo pro uživatele ${data.email}.`,
+				onClose: () => changePasswordDialog.hide(),
+				onConfirm: (password) => {
+					changePasswordDialog.hide();
+					waitingDialog.show("Probíhá změna hesla");
+					restClient.users
+						.changePassword(Number(data.id), password)
+						.then(() => {
+							waitingDialog.hide();
+							userAlerts.info('Heslo bylo změneno');
+						})
+				}
+			},
+		);
+	}, [restClient, data, userAlerts, changePasswordDialog, waitingDialog]);
 
 	if (!data) {
 		return <Spinner/>;
@@ -96,9 +126,17 @@ export default function UserDetail() {
 					<SaveButton loading={saving} disabled={!changed} onClick={saveData}>
 						Save
 					</SaveButton>
-					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
-						Delete
-					</DeleteButton>
+					{
+						data.id && <>
+							<DeleteButton loading={deleting} onClick={deleteAccount}>
+								Delete
+							</DeleteButton>
+							<IconButton onClick={changePassword} icon={<BiShekel/>}>
+								Změnit heslo
+							</IconButton>
+						</>
+					}
+
 				</Stack>
 			</div>
 

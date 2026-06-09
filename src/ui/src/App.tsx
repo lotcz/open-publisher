@@ -26,6 +26,8 @@ import {Spinner} from "react-bootstrap";
 import {BsRepeat} from "react-icons/bs";
 import {User} from "./types/User";
 import {BasicLocalization, MemoryDictionary} from "zavadil-ts-common";
+import ChangePasswordDialog, {ChangePasswordDialogProps} from "./component/general/ChangePasswordDialog";
+import {ChangePasswordDialogContext, ChangePasswordDialogContextContent} from "./util/ChangePasswordDialogContext";
 
 export default function App() {
 	const userAlerts = useContext(UserAlertsContext);
@@ -38,6 +40,7 @@ export default function App() {
 	const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogProps>();
 	const [waitingDialog, setWaitingDialog] = useState<WaitingDialogProps>();
 	const [uploadImageDialog, setUploadImageDialog] = useState<UploadImageModalProps>();
+	const [changePasswordDialog, setChangePasswordDialog] = useState<ChangePasswordDialogProps>();
 
 	const localization = useMemo(
 		() => {
@@ -86,6 +89,13 @@ export default function App() {
 			show: (props: UploadImageModalProps) => setUploadImageDialog(props),
 			hide: () => setUploadImageDialog(undefined),
 		};
+	}, []);
+
+	const changePasswordDialogContext = useMemo<ChangePasswordDialogContextContent>(() => {
+		return {
+			show: (props: ChangePasswordDialogProps) => setChangePasswordDialog(props),
+			hide: () => setChangePasswordDialog(undefined),
+		}
 	}, []);
 
 	const restInitialize = useCallback(() => {
@@ -141,47 +151,50 @@ export default function App() {
 						<UploadImageDialogContext.Provider value={uploadImageDialogContext}>
 							<WaitingDialogContext.Provider value={waitingDialogContext}>
 								<ConfirmDialogContext.Provider value={confirmDialogContext}>
-									<LocalizationContext.Provider value={localization}>
-										<div className="min-h-100 d-flex flex-column align-items-stretch">
-											{initialized === undefined && (
-												<Spread>
-													<div className="d-flex flex-column align-items-center">
-														<div>
-															<Spinner/>
+									<ChangePasswordDialogContext.Provider value={changePasswordDialogContext}>
+										<LocalizationContext.Provider value={localization}>
+											<div className="min-h-100 d-flex flex-column align-items-stretch">
+												{initialized === undefined && (
+													<Spread>
+														<div className="d-flex flex-column align-items-center">
+															<div>
+																<Spinner/>
+															</div>
+															<div>
+																Inicializace...
+															</div>
 														</div>
-														<div>
-															Inicializace...
+													</Spread>
+												)}
+												{initialized === false && (
+													<Spread>
+														<div className="d-flex flex-column align-items-center">
+															<div className="p-3 error">
+																Inicializace selhala!
+															</div>
+															<div>
+																<IconButton onClick={restInitialize} icon={<BsRepeat/>}>
+																	Opakovat
+																</IconButton>
+															</div>
 														</div>
-													</div>
-												</Spread>
-											)}
-											{initialized === false && (
-												<Spread>
-													<div className="d-flex flex-column align-items-center">
-														<div className="p-3 error">
-															Inicializace selhala!
-														</div>
-														<div>
-															<IconButton onClick={restInitialize} icon={<BsRepeat/>}>
-																Opakovat
-															</IconButton>
-														</div>
-													</div>
-												</Spread>
-											)}
-											{initialized === true && (
-												<>
-													<Header/>
-													<Main/>
-													<Footer/>
-												</>
-											)}
-											{confirmDialog && <ConfirmDialog {...confirmDialog} />}
-											{waitingDialog && <WaitingDialog {...waitingDialog} />}
-											{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
-											{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
-										</div>
-									</LocalizationContext.Provider>
+													</Spread>
+												)}
+												{initialized === true && (
+													<>
+														<Header/>
+														<Main/>
+														<Footer/>
+													</>
+												)}
+												{confirmDialog && <ConfirmDialog {...confirmDialog} />}
+												{waitingDialog && <WaitingDialog {...waitingDialog} />}
+												{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
+												{changePasswordDialog && <ChangePasswordDialog {...changePasswordDialog} />}
+												{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
+											</div>
+										</LocalizationContext.Provider>
+									</ChangePasswordDialogContext.Provider>
 								</ConfirmDialogContext.Provider>
 							</WaitingDialogContext.Provider>
 						</UploadImageDialogContext.Provider>

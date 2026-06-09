@@ -1,7 +1,6 @@
 package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.util.EnumUtils;
-import eu.zavadil.openpublisher.data.SyncState;
 import eu.zavadil.openpublisher.data.article.ArticleState;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,11 +22,6 @@ public class EnumerationsController {
 	@GetMapping("user-roles")
 	public List<String> userRoles() {
 		return EnumUtils.namesOf(UserRole.class);
-	}
-
-	@GetMapping("sync-states")
-	public List<String> syncStates() {
-		return EnumUtils.namesOf(SyncState.class);
 	}
 
 	@GetMapping("article-states")
