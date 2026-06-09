@@ -3,7 +3,7 @@
 */
 
 :root {
-	--font-family: "Arial Rounded MT Bold", sans-serif;
+	--font-family: Arial, sans-serif;
 }
 
 body {
@@ -15,17 +15,21 @@ strong, .strong, h1, h2, h3, h4 {
 	font-weight: bold;
 }
 
-.light, small {
-
-}
-
-a {
-
-}
-
 a:hover {
 	text-decoration: none;
+}
 
+a.brand-logo {
+	color: inherit;
+}
+
+.main-menu a,
+a.brand-logo {
+	text-decoration: none;
+}
+
+.main-menu a.active {
+	font-weight: bold;
 }
 
 .error {

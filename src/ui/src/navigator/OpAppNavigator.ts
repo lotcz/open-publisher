@@ -18,6 +18,10 @@ export default class OpAppNavigator extends LinkNavigator {
 		this.articles = new EntityNavigator(navigate, new EntityPathProvider('clanky'));
 	}
 
+	logout() {
+		this.navigate('/odhlasit');
+	}
+
 }
 
 export const OpAppNavigatorContext = createContext<OpAppNavigator | null>(null);

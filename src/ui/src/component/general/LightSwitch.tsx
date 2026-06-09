@@ -15,6 +15,7 @@ export default function LightSwitch() {
 				session.theme = isDark ? "light" : "dark";
 				if (sessionUpdate) sessionUpdate({...session});
 			}}
+
 			iconOn={<BsSunFill/>}
 			iconOff={<BsMoonFill/>}
 		/>

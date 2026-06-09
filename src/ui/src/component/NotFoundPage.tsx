@@ -1,3 +1,3 @@
 export default function NotFoundPage() {
-	return <div>Not found!</div>;
+	return <div>404 - nenalezeno!</div>;
 }

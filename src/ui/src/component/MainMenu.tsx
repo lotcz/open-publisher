@@ -1,26 +1,14 @@
-import {useCallback, useContext} from "react";
 import {NavLink} from "react-router";
 import {Localize} from "zavadil-react-common";
 import {useNavigator} from "../navigator/OpAppNavigator";
-import {useRestClient} from "../client/OpRestClient";
-import {UserAlertsContext} from "../util/UserAlerts";
 import {useUserSession} from "../util/UserSession";
 
 function MainMenu() {
 	const navigator = useNavigator();
-	const restClient = useRestClient();
-	const userAlerts = useContext(UserAlertsContext);
 	const userSession = useUserSession();
 
-	const logOut = useCallback(() => {
-		restClient.logout().then(() => {
-			userAlerts.info("Logged out");
-			navigator.go();
-		});
-	}, [navigator, restClient, userAlerts]);
-
 	return (
-		<div className="main-menu p-3">
+		<div className="main-menu ps-3">
 			<h4 className="mt-2">
 				Publikace
 			</h4>
@@ -49,19 +37,6 @@ function MainMenu() {
 					</div>
 				</>
 			}
-
-			<div>
-				<a
-					href="/odhlasit"
-					onClick={(e) => {
-						e.stopPropagation();
-						e.preventDefault();
-						logOut();
-					}}
-				>
-					<Localize text="Log out"/>
-				</a>
-			</div>
 		</div>
 	);
 }

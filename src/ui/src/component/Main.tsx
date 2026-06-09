@@ -10,10 +10,11 @@ import DestinationsList from "./admin/destination/DestinationsList";
 import DestinationDetail from "./admin/destination/DestinationDetail";
 import ArticlesList from "./article/ArticlesList";
 import ArticleDetail from "./article/ArticleDetail";
+import NotFoundPage from "./NotFoundPage";
 
 export default function Main() {
 	return (
-		<main>
+		<main className="pb-3">
 			<Stack direction="horizontal" className="align-items-stretch">
 				<MainMenu/>
 				<div className="flex-grow-1 pb-4">
@@ -49,7 +50,7 @@ export default function Main() {
 							</Route>
 						</Route>
 
-						<Route path="*" element={<span>404</span>}/>
+						<Route path="*" element={<NotFoundPage/>}/>
 					</Routes>
 				</div>
 			</Stack>

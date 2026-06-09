@@ -12,7 +12,11 @@ function Footer() {
 			.catch((e) => setStatus(String(e)));
 	}, []);
 
-	return <footer className="flex-fill p-3 small bg-body-secondary">{status}</footer>;
+	return <footer className="flex-fill p-3 small text-muted bg-body-secondary">
+		<div className="text-center">
+			Centrální publikace článků, verze {status}
+		</div>
+	</footer>;
 }
 
 export default Footer;
