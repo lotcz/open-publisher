@@ -4,8 +4,7 @@ import {Stack} from "react-bootstrap";
 
 import UsersList from "./admin/user/UsersList";
 import UserDetail from "./admin/user/UserDetail";
-import Dashboard from "./admin/dashboard/Dashboard";
-import Settings from "./Settings";
+import Dashboard from "./Dashboard";
 import DestinationsList from "./admin/destination/DestinationsList";
 import DestinationDetail from "./admin/destination/DestinationDetail";
 import ArticlesList from "./article/ArticlesList";
@@ -19,7 +18,7 @@ export default function Main() {
 				<MainMenu/>
 				<div className="flex-grow-1 pb-4">
 					<Routes>
-						<Route path="/" element={<Settings/>}/>
+						<Route path="/" element={<Dashboard/>}/>
 
 						<Route path="clanky">
 							<Route path="" element={<ArticlesList/>}/>

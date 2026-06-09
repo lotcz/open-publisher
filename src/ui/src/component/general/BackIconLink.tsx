@@ -18,8 +18,8 @@ export default function BackIconLink({changed}: BackIconLinkProps) {
 			() => {
 				if (changed) {
 					confirmDialog.confirm(
-						"Unsaved changes",
-						"There is unsaved changes on the page you are leaving. Do you still want to leave?",
+						"Neuložené změny",
+						"Ve formuláři jsou neuložené změny, opravdu se přejete změny zahodit a odejít z formuláře?",
 						() => navigate(-1)
 					)
 				} else {
@@ -30,7 +30,7 @@ export default function BackIconLink({changed}: BackIconLinkProps) {
 	>
 		<div className="d-flex align-items-center gap-2">
 			<BsArrow90DegUp/>
-			<div>Back</div>
+			<div>Zpět</div>
 		</div>
 	</Button>
 }

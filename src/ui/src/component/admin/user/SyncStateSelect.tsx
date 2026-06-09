@@ -9,6 +9,7 @@ export type SyncStateSelectProps = {
 export default function SyncStateSelect({state, onChange}: SyncStateSelectProps) {
 	const client = useRestClient();
 	return <EnumDynamicSelect
+
 		supplier={() => client.enumerations.syncStates.get()}
 		value={state}
 		onChange={(s) => onChange(String(s))}

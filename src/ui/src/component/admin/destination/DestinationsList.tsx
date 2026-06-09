@@ -1,6 +1,6 @@
 import {FormEvent, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {Button, Form, Stack} from "react-bootstrap";
-import {DateTime, SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
+import {SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
 import {ObjectUtil, Page, PagingRequest, PagingUtil, StringUtil} from "zavadil-ts-common";
 import {useParams} from "react-router";
 import {Destination} from "../../../types/Destination";
@@ -8,12 +8,13 @@ import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import RefreshIconButton from "../../general/RefreshIconButton";
+import {DateTimeCs} from "../../general/DateTimeCs";
 
 const HEADER: SelectableTableHeader<Destination> = [
 	{name: "id", label: "ID"},
-	{name: "name", label: "Name"},
-	{name: "lastUpdatedOn", label: "Updated", renderer: (p) => <DateTime value={p.lastUpdatedOn}/>},
-	{name: "createdOn", label: "Created", renderer: (p) => <DateTime value={p.createdOn}/>}
+	{name: "name", label: "Název"},
+	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
+	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>}
 ];
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 100, sorting: [{name: "lastUpdatedOn", desc: true}]};
@@ -79,7 +80,7 @@ export default function DestinationsList() {
 							/>
 						</Form>
 					</div>
-					<Button onClick={applySearch}>Search</Button>
+					<Button onClick={applySearch}>Hledat</Button>
 				</Stack>
 			</div>
 

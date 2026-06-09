@@ -1,12 +1,10 @@
 package eu.zavadil.openpublisher.data.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.zavadil.java.spring.common.entity.EntityBase;
-import eu.zavadil.java.spring.common.entity.EntityWithNameBase;
 import eu.zavadil.openpublisher.data.SyncState;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcType;
@@ -28,6 +26,7 @@ public class User extends EntityBase {
 
 	private String oauthSubject;
 
+	@JsonProperty(value = "isActive")
 	private boolean isActive;
 
 }

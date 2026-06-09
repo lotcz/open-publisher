@@ -6,6 +6,7 @@ import {
 	ConfirmDialogContextData,
 	ConfirmDialogProps,
 	IconButton,
+	LocalizationContext,
 	Spread,
 	UserAlertsWidget
 } from "zavadil-react-common";
@@ -27,6 +28,7 @@ import {User} from "./types/User";
 export default function App() {
 	const userAlerts = useContext(UserAlertsContext);
 	const restClient = useMemo(() => new OpRestClient(), []);
+	const localizationContext = useContext(LocalizationContext);
 	const navigate = useNavigate();
 	const appNavigator = useMemo(() => new OpAppNavigator(navigate), [navigate]);
 	const [initialized, setInitialized] = useState<boolean>();
@@ -112,6 +114,9 @@ export default function App() {
 	useEffect(() => {
 		userAlerts.addOnChangeHandler(alertsChanged);
 
+		// czech localization
+		localizationContext.setLanguage('cs');
+
 		// rest client
 		restInitialize();
 
@@ -128,45 +133,47 @@ export default function App() {
 						<UploadImageDialogContext.Provider value={uploadImageDialogContext}>
 							<WaitingDialogContext.Provider value={waitingDialogContext}>
 								<ConfirmDialogContext.Provider value={confirmDialogContext}>
-									<div className="min-h-100 d-flex flex-column align-items-stretch">
-										{initialized === undefined && (
-											<Spread>
-												<div className="d-flex flex-column align-items-center">
-													<div>
-														<Spinner/>
+									<LocalizationContext.Provider value={localizationContext}>
+										<div className="min-h-100 d-flex flex-column align-items-stretch">
+											{initialized === undefined && (
+												<Spread>
+													<div className="d-flex flex-column align-items-center">
+														<div>
+															<Spinner/>
+														</div>
+														<div>
+															Inicializace...
+														</div>
 													</div>
-													<div>
-														Inicializace...
+												</Spread>
+											)}
+											{initialized === false && (
+												<Spread>
+													<div className="d-flex flex-column align-items-center">
+														<div className="p-3 error">
+															Inicializace selhala!
+														</div>
+														<div>
+															<IconButton onClick={restInitialize} icon={<BsRepeat/>}>
+																Opakovat
+															</IconButton>
+														</div>
 													</div>
-												</div>
-											</Spread>
-										)}
-										{initialized === false && (
-											<Spread>
-												<div className="d-flex flex-column align-items-center">
-													<div className="p-3 error">
-														Inicializace selhala!
-													</div>
-													<div>
-														<IconButton onClick={restInitialize} icon={<BsRepeat/>}>
-															Opakovat
-														</IconButton>
-													</div>
-												</div>
-											</Spread>
-										)}
-										{initialized === true && (
-											<>
-												<Header/>
-												<Main/>
-												<Footer/>
-											</>
-										)}
-										{confirmDialog && <ConfirmDialog {...confirmDialog} />}
-										{waitingDialog && <WaitingDialog {...waitingDialog} />}
-										{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
-										{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
-									</div>
+												</Spread>
+											)}
+											{initialized === true && (
+												<>
+													<Header/>
+													<Main/>
+													<Footer/>
+												</>
+											)}
+											{confirmDialog && <ConfirmDialog {...confirmDialog} />}
+											{waitingDialog && <WaitingDialog {...waitingDialog} />}
+											{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
+											{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
+										</div>
+									</LocalizationContext.Provider>
 								</ConfirmDialogContext.Provider>
 							</WaitingDialogContext.Provider>
 						</UploadImageDialogContext.Provider>

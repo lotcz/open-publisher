@@ -1,8 +1,8 @@
 import {Form, Spinner, Stack} from "react-bootstrap";
-import {useParams, useSearchParams} from "react-router";
+import {useParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
@@ -10,32 +10,18 @@ import {User} from "../../../types/User";
 import BackIconLink from "../../general/BackIconLink";
 import RefreshIconButton from "../../general/RefreshIconButton";
 import SyncStateSelect from "./SyncStateSelect";
-
-const TAB_PARAM_NAME = "tab";
-const DEFAULT_TAB = "creators";
+import UserRoleSelect from "./UserRoleSelect";
 
 export default function UserDetail() {
 	const {id} = useParams();
 	const navigator = useNavigator();
-	const [searchParams, setSearchParams] = useSearchParams();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
-	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<User>();
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
-
-	useEffect(() => {
-		if (!activeTab) return;
-		searchParams.set(TAB_PARAM_NAME, activeTab);
-		setSearchParams(searchParams, {replace: true});
-	}, [activeTab]);
-
-	useEffect(() => {
-		setActiveTab(StringUtil.getNonEmpty(searchParams.get(TAB_PARAM_NAME), DEFAULT_TAB));
-	}, [id]);
 
 	const onChanged = useCallback(() => {
 		if (!data) return;
@@ -117,7 +103,8 @@ export default function UserDetail() {
 				<Stack direction="vertical" gap={2}>
 					<FormRowControl
 						label="Email"
-						type="text"
+						type="email"
+						maxLength={255}
 						value={data.email}
 						onChange={(e) => {
 							data.email = e.target.value;
@@ -125,9 +112,31 @@ export default function UserDetail() {
 						}}
 					/>
 
+					<FormRow label="Uživatelská role">
+						<div className="float-start">
+							<UserRoleSelect
+								state={data.userRole}
+								onChange={(e) => {
+									data.userRole = e;
+									onChanged();
+								}}
+							/>
+						</div>
+					</FormRow>
+
+					<Switch
+						label="Aktivní"
+						checked={data.isActive}
+						onChange={(e) => {
+							data.isActive = e;
+							onChanged();
+						}}
+					/>
+
 					<FormRowControl
-						label="OAuth Subject"
+						label="OAuth subject"
 						type="text"
+						disabled={true}
 						value={StringUtil.getNonEmpty(data.oauthSubject)}
 						onChange={(e) => {
 							data.oauthSubject = e.target.value;
@@ -135,14 +144,16 @@ export default function UserDetail() {
 						}}
 					/>
 
-					<FormRow forId="sync_state" label="Sync">
-						<SyncStateSelect
-							state={data.syncState}
-							onChange={(e) => {
-								data.syncState = e;
-								onChanged();
-							}}
-						/>
+					<FormRow label="OAuth synchronizace">
+						<div className="float-start">
+							<SyncStateSelect
+								state={data.syncState}
+								onChange={(e) => {
+									data.syncState = e;
+									onChanged();
+								}}
+							/>
+						</div>
 					</FormRow>
 				</Stack>
 			</Form>

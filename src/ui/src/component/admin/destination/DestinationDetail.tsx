@@ -2,7 +2,7 @@ import {Col, Form, Row, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRowControl, SaveButton} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton} from "zavadil-react-common";
 import DestinationArticlesList from "./DestinationArticlesList";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
@@ -16,7 +16,7 @@ const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "articles";
 
 export default function DestinationDetail() {
-	const {id, accountId} = useParams();
+	const {id} = useParams();
 	const navigator = useNavigator();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const restClient = useRestClient();
@@ -65,7 +65,7 @@ export default function DestinationDetail() {
 			.loadSingle(Number(id))
 			.then(setData)
 			.catch((e: Error) => userAlerts.err(e));
-	}, [id, accountId, restClient, userAlerts]);
+	}, [id, restClient, userAlerts]);
 
 	useEffect(reload, [id]);
 
@@ -91,7 +91,7 @@ export default function DestinationDetail() {
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
-		confirmDialog.confirm("Smazat?", "Opravdu si přejete smazat toto napojení?", () => {
+		confirmDialog.confirm("Smazat?", "Opravdu si přejete smazat napojení na tento web?", () => {
 			setDeleting(true);
 			restClient
 				.admin
@@ -127,7 +127,7 @@ export default function DestinationDetail() {
 			<Form className="px-3 w-75">
 				<Stack direction="vertical" gap={2}>
 					<FormRowControl
-						label="Name"
+						label="Název"
 						type="text"
 						value={data.name}
 						onChange={(e) => {
@@ -137,24 +137,35 @@ export default function DestinationDetail() {
 					/>
 					<Row>
 						<Col>
-							<FormRowControl
-								label="Barva pozadí"
-								type="color"
-								value={data.previewBgColor}
-								onChange={(e) => {
-									data.previewBgColor = e.target.value;
-									onChanged();
-								}}
-							/>
-							<FormRowControl
-								label="Barva textu"
-								type="color"
-								value={data.previewTextColor}
-								onChange={(e) => {
-									data.previewTextColor = e.target.value;
-									onChanged();
-								}}
-							/>
+							<Stack direction="horizontal" gap={3}>
+								<FormRowControl
+									label="Barva pozadí"
+									type="color"
+									value={data.previewBgColor}
+									onChange={(e) => {
+										data.previewBgColor = e.target.value;
+										onChanged();
+									}}
+								/>
+								<FormRowControl
+									label="Barva textu"
+									type="color"
+									value={data.previewTextColor}
+									onChange={(e) => {
+										data.previewTextColor = e.target.value;
+										onChanged();
+									}}
+								/>
+								<FormRowControl
+									label="Barva odkazu"
+									type="color"
+									value={data.previewLinkColor}
+									onChange={(e) => {
+										data.previewLinkColor = e.target.value;
+										onChanged();
+									}}
+								/>
+							</Stack>
 							<FormRowControl
 								label="Typ písma"
 								type="text"
@@ -166,14 +177,29 @@ export default function DestinationDetail() {
 								}}
 							/>
 							<FormRowControl
-								label="Link color"
-								type="color"
-								value={data.previewLinkColor}
+								label="Maximální šířka stránky (px)"
+								type="number"
+								value={data.previewWidthPx}
 								onChange={(e) => {
-									data.previewLinkColor = e.target.value;
+									data.previewFontFamily = e.target.value;
 									onChanged();
 								}}
 							/>
+							<small className="text-muted">Používá se při náhledu na celou obrazovku</small>
+							<FormRow label="Základní úroveň nadpisů">
+								<Form.Select
+									value={data.headerLevel}
+									onChange={(e) => {
+										data.headerLevel = Number(e.target.value);
+										onChanged();
+									}}
+								>
+									<option value={2}>h2</option>
+									<option value={3}>h3</option>
+									<option value={4}>h4</option>
+									<option value={5}>h5</option>
+								</Form.Select>
+							</FormRow>
 						</Col>
 						<Col>
 							<DestinationPreview destination={data}/>

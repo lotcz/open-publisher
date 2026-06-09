@@ -1,5 +1,4 @@
 import {NavLink} from "react-router";
-import {Localize} from "zavadil-react-common";
 import {useNavigator} from "../navigator/OpAppNavigator";
 import {useUserSession} from "../util/UserSession";
 
@@ -28,11 +27,6 @@ function MainMenu() {
 						</div>
 						<div>
 							<NavLink to={navigator.admin.users.path.list()}>Uživatelé</NavLink>
-						</div>
-						<div className="text-nowrap">
-							<NavLink to={navigator.admin.path()}>
-								<Localize text="System State"/>
-							</NavLink>
 						</div>
 					</div>
 				</>
