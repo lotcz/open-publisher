@@ -5,13 +5,18 @@
 	--preview-link-color: blue;
 }
 
+html[data-bs-theme="dark"] .article-preview,
 .article-preview {
 	background-color: var(--preview-background-color);
 	color: var(--preview-text-color);
 	font-family: var(--preview-font-family);
-	
+
+	h1, h2, h3 {
+		color: var(--preview-text-color) !important;
+	}
+
 	a {
-		color: var(--preview-link-color);
+		color: var(--preview-link-color) !important;
 	}
 
 }

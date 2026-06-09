@@ -18,6 +18,6 @@ export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps
 			plugins: 'advlist autolink lists link image',
 			toolbar: 'undo redo | bold italic | bullist numlist',
 		}}
-		onInput={(evt, editor) => onChange(editor.getContent())}
+		onChange={(evt, editor) => onChange(editor.getContent())}
 	/>
 }

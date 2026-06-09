@@ -4,6 +4,7 @@ import {User} from "../types/User";
 export class UserSession {
 	theme: string = "dark";
 	user: User;
+	previewDestinationId?: number | null;
 
 	constructor(user: User) {
 		this.user = user;
@@ -19,7 +20,12 @@ export function useUserSession(): UserSession {
 	return ctx;
 }
 
-export type UserSessionUpdate = ((s: UserSession) => any) | null;
+export type UserSessionUpdate = (s: UserSession) => any;
 
-export const UserSessionUpdateContext = createContext<UserSessionUpdate>(null);
+export const UserSessionUpdateContext = createContext<UserSessionUpdate | null>(null);
 
+export function useUserSessionUpdate(): UserSessionUpdate {
+	const ctx = useContext(UserSessionUpdateContext);
+	if (!ctx) throw new Error("useUserSessionUpdate must be used within App!");
+	return ctx;
+}

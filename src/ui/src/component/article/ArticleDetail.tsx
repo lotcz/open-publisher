@@ -1,4 +1,4 @@
-import {Button, Form, Spinner, Stack} from "react-bootstrap";
+import {Button, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
@@ -12,6 +12,7 @@ import RefreshIconButton from "../general/RefreshIconButton";
 import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
 import ArticleStateBadge from "./ArticleStateBadge";
+import ArticlePreview from "./ArticlePreview";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -120,7 +121,7 @@ export default function ArticleDetail() {
 				</Stack>
 			</div>
 
-			<Form className="px-3 w-75">
+			<Form className="px-3">
 				<Stack direction="vertical" gap={2}>
 					<FormRowControl
 						label="Nadpis"
@@ -131,16 +132,6 @@ export default function ArticleDetail() {
 							onChanged();
 						}}
 					/>
-
-					<FormRow label="Text článku">
-						<TinyMceInput
-							initialValue={StringUtil.getNonEmpty(data.contentHtml)}
-							onChange={(e) => {
-								data.contentHtml = e;
-								onChanged();
-							}}
-						/>
-					</FormRow>
 
 					<FormRow label="Stav publikace">
 						<Stack direction="horizontal" gap={2}>
@@ -206,6 +197,25 @@ export default function ArticleDetail() {
 							</Stack>
 						</div>
 					</FormRow>
+
+					<Row>
+						<Col>
+							<FormRow label="Text článku">
+								<TinyMceInput
+									initialValue={StringUtil.getNonEmpty(data.contentHtml)}
+									onChange={(e) => {
+										data.contentHtml = e;
+										onChanged();
+									}}
+								/>
+							</FormRow>
+						</Col>
+						<Col>
+							<FormRow label="Náhled">
+								<ArticlePreview article={data}/>
+							</FormRow>
+						</Col>
+					</Row>
 
 
 				</Stack>
