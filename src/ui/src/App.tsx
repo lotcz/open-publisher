@@ -1,5 +1,6 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router";
+import LocalizationFileCzech from "./lang/dictionary.cs.json";
 import {
 	ConfirmDialog,
 	ConfirmDialogContext,
@@ -24,11 +25,11 @@ import Footer from "./component/Footer";
 import {Spinner} from "react-bootstrap";
 import {BsRepeat} from "react-icons/bs";
 import {User} from "./types/User";
+import {BasicLocalization, MemoryDictionary} from "zavadil-ts-common";
 
 export default function App() {
 	const userAlerts = useContext(UserAlertsContext);
 	const restClient = useMemo(() => new OpRestClient(), []);
-	const localizationContext = useContext(LocalizationContext);
 	const navigate = useNavigate();
 	const appNavigator = useMemo(() => new OpAppNavigator(navigate), [navigate]);
 	const [initialized, setInitialized] = useState<boolean>();
@@ -37,6 +38,16 @@ export default function App() {
 	const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogProps>();
 	const [waitingDialog, setWaitingDialog] = useState<WaitingDialogProps>();
 	const [uploadImageDialog, setUploadImageDialog] = useState<UploadImageModalProps>();
+
+	const localization = useMemo(
+		() => {
+			// czech localization
+			const local = new BasicLocalization('cs');
+			local.addDictionary('cs', new MemoryDictionary(LocalizationFileCzech));
+			return local;
+		},
+		[]
+	);
 
 	const updateSessionValues = useCallback((s: UserSession) => {
 		document.documentElement.dataset.bsTheme = s.theme;
@@ -83,7 +94,7 @@ export default function App() {
 			restClient
 				.initialize()
 				.then(
-					() => restClient.profile().then(
+					() => restClient.users.profile().then(
 						(u: User) => {
 							let newSession: UserSession = new UserSession(u);
 							const json = localStorage.getItem("op-session");
@@ -114,9 +125,6 @@ export default function App() {
 	useEffect(() => {
 		userAlerts.addOnChangeHandler(alertsChanged);
 
-		// czech localization
-		localizationContext.setLanguage('cs');
-
 		// rest client
 		restInitialize();
 
@@ -133,7 +141,7 @@ export default function App() {
 						<UploadImageDialogContext.Provider value={uploadImageDialogContext}>
 							<WaitingDialogContext.Provider value={waitingDialogContext}>
 								<ConfirmDialogContext.Provider value={confirmDialogContext}>
-									<LocalizationContext.Provider value={localizationContext}>
+									<LocalizationContext.Provider value={localization}>
 										<div className="min-h-100 d-flex flex-column align-items-stretch">
 											{initialized === undefined && (
 												<Spread>

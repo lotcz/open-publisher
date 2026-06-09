@@ -1,18 +1,22 @@
-package eu.zavadil.openpublisher.api.admin;
+package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
 import eu.zavadil.openpublisher.data.destination.Destination;
+import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.service.DestinationsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${api.base-url}/admin/destinations")
+@RequestMapping("${api.base-url}/destinations")
 @Tag(name = "Destinations")
 @Slf4j
+@PreAuthorize("isAuthenticated()")
 public class DestinationsController {
 
 	@Autowired
@@ -34,18 +38,21 @@ public class DestinationsController {
 	}
 
 	@PostMapping("")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public Destination insert(@RequestBody Destination document) {
 		document.setId(null);
 		return this.destinationsService.save(document);
 	}
 
 	@PutMapping("{id}")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public Destination update(@PathVariable int id, @RequestBody Destination document) {
 		document.setId(id);
 		return this.destinationsService.save(document);
 	}
 
 	@DeleteMapping("{id}")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public void delete(@PathVariable int id) {
 		this.destinationsService.delete(id);
 	}

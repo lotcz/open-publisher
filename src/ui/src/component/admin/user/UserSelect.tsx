@@ -12,7 +12,7 @@ export default function UserSelect({userId, onChange}: UserSelectProps) {
 	return <AutocompleteEntityIdSelect
 		id={userId}
 		onChange={onChange}
-		entityClient={restClient.admin.users}
+		entityClient={restClient.users}
 		labelGetter={(usr) => usr.email}
 	/>
 

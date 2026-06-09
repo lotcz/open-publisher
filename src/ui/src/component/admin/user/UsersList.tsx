@@ -48,7 +48,8 @@ export default function UsersList() {
 
 	const loadPageHandler = useCallback(() => {
 		setData(null);
-		restClient.admin.users
+		restClient
+			.users
 			.loadPage(paging)
 			.then(setData)
 			.catch((e: Error) => {

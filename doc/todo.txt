@@ -1,0 +1,6 @@
+- article editing
+- change password
+- invitation email
+- grant guest access
+- wordpress plugin
+- zEngine integration

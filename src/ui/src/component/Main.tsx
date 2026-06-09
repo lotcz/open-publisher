@@ -14,7 +14,7 @@ import NotFoundPage from "./NotFoundPage";
 export default function Main() {
 	return (
 		<main className="pb-3">
-			<Stack direction="horizontal" className="align-items-stretch">
+			<Stack direction="horizontal" className="align-items-start">
 				<MainMenu/>
 				<div className="flex-grow-1 pb-4">
 					<Routes>

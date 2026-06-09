@@ -27,13 +27,8 @@ a.brand-logo {
 	color: inherit;
 }
 
-.main-menu a,
 a.brand-logo {
 	text-decoration: none;
-}
-
-.main-menu a.active {
-	font-weight: bold;
 }
 
 .error {
@@ -66,5 +61,26 @@ html[data-bs-theme=dark] {
 
 	h1, h2, h3, h4 {
 		color: var(--bs-body-color) !important;
+	}
+}
+
+/* MAIN MENU */
+
+.main-menu {
+	margin: 10px;
+	padding: 10px;
+	border: 1px solid var(--bs-border-color);
+	border-radius: 10px;
+
+	h4 {
+		font-size: 1.2rem;
+	}
+
+	a {
+		text-decoration: none;
+	}
+
+	.active {
+		font-weight: bold;
 	}
 }

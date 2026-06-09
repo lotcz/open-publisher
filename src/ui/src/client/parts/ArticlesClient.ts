@@ -3,7 +3,7 @@ import {Article, ArticleImage, ArticleStub} from "../../types/Article";
 
 export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 	constructor(client: RestClient) {
-		super(client, "authenticated/articles");
+		super(client, "articles");
 	}
 
 	loadImages(articleId: number): Promise<Array<ArticleImage>> {

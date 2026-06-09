@@ -1,6 +1,6 @@
 import {FormEvent, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {Button, Form, Stack} from "react-bootstrap";
-import {DateTime, SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
+import {SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
 import {ObjectUtil, Page, PagingRequest, PagingUtil, StringUtil} from "zavadil-ts-common";
 import {useParams} from "react-router";
 import {Article} from "../../types/Article";
@@ -8,13 +8,16 @@ import {useNavigator} from "../../navigator/OpAppNavigator";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import RefreshIconButton from "../general/RefreshIconButton";
+import ArticleStateBadge from "./ArticleStateBadge";
+import {DateTimeCs} from "../general/DateTimeCs";
 
 const HEADER: SelectableTableHeader<Article> = [
 	{name: "header", label: "Nadpis"},
 	{name: "owner.email", label: "Autor"},
 	{name: "partner.email", label: "Partner"},
-	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTime value={p.createdOn}/>},
-	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTime value={p.lastUpdatedOn}/>}
+	{name: "articleState", label: "Stav publikace", renderer: (a) => <ArticleStateBadge state={a.articleState}/>},
+	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
+	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>}
 ];
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 100, sorting: [{name: "lastUpdatedOn", desc: true}]};
@@ -67,7 +70,7 @@ export default function ArticlesList() {
 				<Stack direction="horizontal" gap={2}>
 					<RefreshIconButton onClick={reload}/>
 					<Button onClick={() => navigator.articles.add()} className="text-nowrap">
-						+ Add
+						+ Nový článek
 					</Button>
 					<div style={{width: "250px"}}>
 						<Form onSubmit={applySearch}>

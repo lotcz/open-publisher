@@ -40,7 +40,8 @@ export default function UserDetail() {
 			return;
 		}
 		setData(undefined);
-		restClient.admin.users
+		restClient
+			.users
 			.loadSingle(Number(id))
 			.then(setData)
 			.catch((e: Error) => userAlerts.err(e));
@@ -52,7 +53,8 @@ export default function UserDetail() {
 		if (!data) return;
 		const inserting = NumberUtil.isEmpty(data.id);
 		setSaving(true);
-		restClient.admin.users
+		restClient
+			.users
 			.save(data)
 			.then((f) => {
 				if (inserting) {
@@ -70,7 +72,8 @@ export default function UserDetail() {
 		if (!data?.id) return;
 		confirmDialog.confirm("Confirm", "Really delete this user? Consider making it inactive.", () => {
 			setDeleting(true);
-			restClient.admin.users
+			restClient
+				.users
 				.delete(Number(data.id))
 				.then((f) => {
 					navigator.admin.users.list();

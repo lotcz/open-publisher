@@ -1,4 +1,4 @@
-package eu.zavadil.openpublisher.api.authenticated;
+package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
@@ -8,10 +8,13 @@ import eu.zavadil.openpublisher.data.article.Article;
 import eu.zavadil.openpublisher.data.article.ArticleStub;
 import eu.zavadil.openpublisher.data.articleImage.ArticleImage;
 import eu.zavadil.openpublisher.data.user.User;
+import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.service.ArticlesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.base-url}/authenticated/articles")
+@RequestMapping("${api.base-url}/articles")
 @Tag(name = "Articles")
 @Slf4j
+@PreAuthorize("isAuthenticated()")
 public class ArticlesController {
 
 	@Autowired
@@ -35,6 +39,7 @@ public class ArticlesController {
 		@RequestParam(defaultValue = "") String search,
 		@RequestParam(defaultValue = "") String sorting
 	) {
+		// todo: limit to owned articles for guests
 		return JsonPageImpl.of(this.articlesService.search(page, size, search, sorting));
 	}
 
@@ -44,6 +49,7 @@ public class ArticlesController {
 	}
 
 	@PostMapping("")
+	@Secured({UserRole.EDITOR_ROLE_NAME, UserRole.ADMIN_ROLE_NAME})
 	public ArticleStub insert(@RequestBody ArticleStub document) {
 		document.setId(null);
 		return this.articlesService.save(document);
@@ -56,6 +62,7 @@ public class ArticlesController {
 	}
 
 	@DeleteMapping("{id}")
+	@Secured({UserRole.EDITOR_ROLE_NAME, UserRole.ADMIN_ROLE_NAME})
 	public void delete(@PathVariable int id) {
 		this.articlesService.delete(id);
 	}

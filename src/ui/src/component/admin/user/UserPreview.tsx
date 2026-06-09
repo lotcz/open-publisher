@@ -19,7 +19,7 @@ export default function UserPreview({userId}: UserPreviewParams) {
 	const reload = useCallback(() => {
 		setData(undefined);
 		if (userId) {
-			restClient.admin.users
+			restClient.users
 				.loadSingle(userId)
 				.then(setData)
 				.catch((e: Error) => userAlerts.err(e));

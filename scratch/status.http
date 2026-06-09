@@ -2,3 +2,6 @@ GET http://localhost:8090/api/status/version
 
 ###
 GET http://localhost:8090/api/status/oauth/info
+
+###
+GET http://localhost:8090/api/authenticated/profile

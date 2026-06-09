@@ -1,4 +1,4 @@
-import {Form, FormControl, Spinner, Stack} from "react-bootstrap";
+import {Button, Form, Spinner, Stack} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
@@ -11,6 +11,7 @@ import BackIconLink from "../general/BackIconLink";
 import RefreshIconButton from "../general/RefreshIconButton";
 import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
+import ArticleStateBadge from "./ArticleStateBadge";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -50,8 +51,8 @@ export default function ArticleDetail() {
 			setData({
 				header: "",
 				articleState: "Draft",
-				contentHtml: null,
-				previewText: null,
+				contentHtml: '',
+				previewText: '',
 				publishDate: null,
 				ownerId: Number(session.user.id)
 			});
@@ -110,7 +111,7 @@ export default function ArticleDetail() {
 				<Stack direction="horizontal" gap={2}>
 					<BackIconLink changed={changed}/>
 					<RefreshIconButton onClick={reload}/>
-					<SaveButton loading={saving} disabled={!changed} onClick={saveData}>
+					<SaveButton loading={saving} disabled={StringUtil.isBlank(data.header) || !changed} onClick={saveData}>
 						Uložit
 					</SaveButton>
 					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
@@ -131,27 +132,6 @@ export default function ArticleDetail() {
 						}}
 					/>
 
-					<FormControl name="Datum publikace">
-						<Stack direction="horizontal" gap={2}>
-							<DateTimeInput
-								value={data.publishDate}
-								onChange={(d) => {
-									data.publishDate = d || null;
-									onChanged();
-								}}
-							/>
-							{
-								data.publishDate && <IconButton
-									variant="warning"
-									onClick={() => {
-										data.publishDate = null;
-										onChanged();
-									}}
-								>Zrušit publikaci</IconButton>
-							}
-						</Stack>
-					</FormControl>
-
 					<FormRow label="Text článku">
 						<TinyMceInput
 							initialValue={StringUtil.getNonEmpty(data.contentHtml)}
@@ -161,6 +141,72 @@ export default function ArticleDetail() {
 							}}
 						/>
 					</FormRow>
+
+					<FormRow label="Stav publikace">
+						<Stack direction="horizontal" gap={2}>
+							<ArticleStateBadge state={data.articleState}/>
+							{
+								data.articleState === 'Draft' && <>
+									<div>Článek není zatím publikován.</div>
+									<Button
+										variant="success"
+										size="sm"
+										onClick={() => {
+											data.articleState = 'Published';
+											onChanged();
+										}}>Publikovat</Button>
+								</>
+							}
+							{
+								data.articleState === 'Published' && <>
+									<div>Článek je publikován.</div>
+									<Button
+										variant="secondary"
+										size="sm"
+										onClick={() => {
+											data.articleState = 'Hidden';
+											onChanged();
+										}}>Skrýt</Button>
+								</>
+							}
+							{
+								data.articleState === 'Hidden' && <>
+									<div>Článek je skrytý.</div>
+									<Button
+										variant="success"
+										size="sm"
+										onClick={() => {
+											data.articleState = 'Published';
+											onChanged();
+										}}>Publikovat</Button>
+								</>
+							}
+						</Stack>
+					</FormRow>
+
+					<FormRow label="Odložená publikace">
+						<div className="float-start">
+							<Stack direction="horizontal" gap={2}>
+								<DateTimeInput
+									value={data.publishDate}
+									onChange={(d) => {
+										data.publishDate = d || null;
+										onChanged();
+									}}
+								/>
+								{
+									data.publishDate && <IconButton
+										variant="warning"
+										onClick={() => {
+											data.publishDate = null;
+											onChanged();
+										}}
+									>Vynulovat</IconButton>
+								}
+							</Stack>
+						</div>
+					</FormRow>
+
 
 				</Stack>
 			</Form>

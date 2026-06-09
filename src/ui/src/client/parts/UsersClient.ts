@@ -3,7 +3,11 @@ import {User} from "../../types/User";
 
 export class UsersClient extends EntityClient<User> {
 	constructor(client: RestClient) {
-		super(client, "admin/users");
+		super(client, "users");
+	}
+
+	profile(): Promise<User> {
+		return this.client.getJson(`${this.name}/profile`);
 	}
 
 }

@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.config.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,8 +25,12 @@ public class SecurityConfig {
 	@Getter
 	private String allowedOrigin;
 
+	private final AuthenticationFilter authenticationFilter;
+
 	@Autowired
-	AuthenticationFilter authenticationFilter;
+	public SecurityConfig(AuthenticationFilter authenticationFilter) {
+		this.authenticationFilter = authenticationFilter;
+	}
 
 	/**
 	 * Allow all cross-origin requests.
@@ -58,22 +63,16 @@ public class SecurityConfig {
 			.csrf(c -> {
 				c.disable();
 			})
+			.exceptionHandling(ex -> ex
+				.authenticationEntryPoint((request, response, authException) ->
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+				)
+				.accessDeniedHandler((request, response, accessDeniedException) ->
+					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden")
+				)
+			)
 			.securityMatcher(String.format("%s/**", this.apiBaseUrl))
-			.addFilterBefore(this.authenticationFilter, AuthorizationFilter.class)
-			.authorizeHttpRequests(auth ->
-				auth
-					// ── Admin-only endpoint
-					.requestMatchers(String.format("%s/admin/**", this.apiBaseUrl))
-					.hasRole("ADMIN")
-					// ── Editor-only endpoint
-					.requestMatchers(String.format("%s/editor/**", this.apiBaseUrl))
-					.hasAnyRole("ADMIN", "EDITOR")
-					// ── authenticated-only endpoint
-					.requestMatchers(String.format("%s/authenticated/**", this.apiBaseUrl))
-					.authenticated()
-					.anyRequest()
-					.permitAll()
-			);
+			.addFilterBefore(this.authenticationFilter, AuthorizationFilter.class);
 		return http.build();
 	}
 }

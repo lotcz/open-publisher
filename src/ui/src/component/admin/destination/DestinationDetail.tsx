@@ -60,7 +60,6 @@ export default function DestinationDetail() {
 		}
 		setData(undefined);
 		restClient
-			.admin
 			.destinations
 			.loadSingle(Number(id))
 			.then(setData)
@@ -74,7 +73,6 @@ export default function DestinationDetail() {
 		const inserting = NumberUtil.isEmpty(data.id);
 		setSaving(true);
 		restClient
-			.admin
 			.destinations
 			.save(data)
 			.then((f) => {
@@ -94,7 +92,6 @@ export default function DestinationDetail() {
 		confirmDialog.confirm("Smazat?", "Opravdu si přejete smazat napojení na tento web?", () => {
 			setDeleting(true);
 			restClient
-				.admin
 				.destinations
 				.delete(Number(data.id))
 				.then((f) => {

@@ -14,15 +14,15 @@ export class EnumerationsClient {
 		this.client = client;
 
 		this.userRoles = new LazyAsync<string[]>(
-			() => this.client.getJson('authenticated/enumerations/user-roles')
+			() => this.client.getJson('enumerations/user-roles')
 		);
 
 		this.syncStates = new LazyAsync<string[]>(
-			() => this.client.getJson('authenticated/enumerations/sync-states')
+			() => this.client.getJson('enumerations/sync-states')
 		);
 
 		this.articleStates = new LazyAsync<string[]>(
-			() => this.client.getJson('authenticated/enumerations/article-states')
+			() => this.client.getJson('enumerations/article-states')
 		);
 
 	}

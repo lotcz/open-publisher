@@ -46,7 +46,6 @@ export default function DestinationsList() {
 	const loadPageHandler = useCallback(() => {
 		setData(null);
 		restClient
-			.admin
 			.destinations
 			.loadPage(paging)
 			.then(setData)
