@@ -29,6 +29,7 @@ export function UploadImageModal({onClose, onSelected}: UploadImageModalProps) {
 		if (!file) return;
 		setUploading(true);
 		restClient
+			.images
 			.uploadImage(file)
 			.then((name) => onSelected(name))
 			.catch((e) => {

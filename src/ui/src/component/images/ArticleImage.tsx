@@ -13,7 +13,7 @@ export function ArticleImage({name, size}: ArticleImageProps) {
 	const url = useMemo<URL | null>(
 		() => {
 			if (!name) return null;
-			return new URL(`${name}/${size}`, restClient.getBaseUrl());
+			return new URL(`images/${name}/${size}`, restClient.getBaseUrl());
 		},
 		[restClient, name, size]
 	);

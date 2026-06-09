@@ -6,6 +6,7 @@ import {OpStats} from "../types/Stats";
 import {ArticlesClient} from "./parts/ArticlesClient";
 import {DestinationsClient} from "./parts/DestinationsClient";
 import {UsersClient} from "./parts/UsersClient";
+import {ImagesClient} from "./parts/ImagesClient";
 
 export class OpRestClient extends RestClientWithOAuth {
 
@@ -17,6 +18,8 @@ export class OpRestClient extends RestClientWithOAuth {
 
 	users: UsersClient;
 
+	images: ImagesClient;
+
 	constructor(refreshTokenProvider?: OAuthRefreshTokenProvider) {
 		super(conf.API_URL, refreshTokenProvider);
 
@@ -24,6 +27,7 @@ export class OpRestClient extends RestClientWithOAuth {
 		this.articles = new ArticlesClient(this);
 		this.destinations = new DestinationsClient(this);
 		this.users = new UsersClient(this);
+		this.images = new ImagesClient(this);
 	}
 
 	version(): Promise<string> {
@@ -32,12 +36,6 @@ export class OpRestClient extends RestClientWithOAuth {
 
 	stats(): Promise<OpStats> {
 		return this.getJson("status/stats");
-	}
-
-	uploadImage(f: File): Promise<string> {
-		let formData = new FormData();
-		formData.append("image", f);
-		return this.postFormJson('images', formData);
 	}
 
 }

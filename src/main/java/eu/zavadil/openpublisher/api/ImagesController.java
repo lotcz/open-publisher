@@ -18,7 +18,6 @@ import java.net.URI;
 @RequestMapping("${api.base-url}/images")
 @Tag(name = "Images")
 @Slf4j
-@PreAuthorize("isAuthenticated()")
 public class ImagesController {
 
 	@Autowired
@@ -47,7 +46,7 @@ public class ImagesController {
 	public ResponseEntity<Void> getImageView(@PathVariable String imageName) {
 		return ResponseEntity
 			.status(HttpStatus.FOUND)
-			.location(this.getResizedUri(imageName, 1920, 1080))
+			.location(this.getResizedUri(imageName, 1000, 1000))
 			.build();
 	}
 
@@ -84,6 +83,7 @@ public class ImagesController {
 	}
 
 	@PostMapping("")
+	@PreAuthorize("isAuthenticated()")
 	public String uploadImage(@RequestParam("image") MultipartFile file) {
 		String originalFileName = FileNameUtils.extractFileName(file.getOriginalFilename());
 		try {

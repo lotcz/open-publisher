@@ -16,6 +16,7 @@ export function ImageUploadButton({label, onSelected}: ImageUploadButtonProps) {
 			if (!file) return;
 			setUploading(true);
 			restClient
+				.images
 				.uploadImage(file)
 				.then((ih) => onSelected(ih))
 				.catch((e) => console.error(e))

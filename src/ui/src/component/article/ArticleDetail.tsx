@@ -13,6 +13,8 @@ import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
 import ArticleStateBadge from "./ArticleStateBadge";
 import ArticlePreview from "./ArticlePreview";
+import {ArticleImage} from "../images/ArticleImage";
+import {ImageUploadButton} from "../images/ImageUploadButton";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -198,6 +200,35 @@ export default function ArticleDetail() {
 						</div>
 					</FormRow>
 
+					<FormRow label="Hlavní obrázek">
+						<div className="float-start">
+							<Stack gap={2}>
+								{
+									data.imageName && <ArticleImage size="thumb" name={data.imageName}/>
+								}
+								<Stack direction="horizontal" gap={2}>
+									<ImageUploadButton
+										label="Nahrát..."
+										onSelected={(d) => {
+											data.imageName = d || null;
+											onChanged();
+										}}
+									/>
+									{
+										data.imageName && <IconButton
+											size="sm"
+											variant="warning"
+											onClick={() => {
+												data.imageName = null;
+												onChanged();
+											}}
+										>Odstranit obrázek</IconButton>
+									}
+								</Stack>
+							</Stack>
+						</div>
+					</FormRow>
+
 					<Row>
 						<Col>
 							<FormRow label="Text článku">
@@ -210,9 +241,11 @@ export default function ArticleDetail() {
 								/>
 							</FormRow>
 						</Col>
-						<Col>
+						<Col style={{maxWidth: '50%'}}>
 							<FormRow label="Náhled">
-								<ArticlePreview article={data}/>
+								<div>
+									<ArticlePreview article={data}/>
+								</div>
 							</FormRow>
 						</Col>
 					</Row>

@@ -1,5 +1,7 @@
 import {Editor} from "@tinymce/tinymce-react";
-import {useMemo} from "react";
+import {useCallback, useMemo} from "react";
+import {useRestClient} from "../../client/OpRestClient";
+import {useUserSession} from "../../util/UserSession";
 
 export type TinyMceInputProps = {
 	initialValue: string;
@@ -8,6 +10,19 @@ export type TinyMceInputProps = {
 
 export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps) {
 	const value = useMemo(() => initialValue, []);
+	const restClient = useRestClient();
+	const userSession = useUserSession();
+
+	const imageUploadHandler = useCallback(
+		(blobInfo: any, progress: any) => {
+			return restClient.images.uploadTinyMceImage(blobInfo)
+				.catch((error) => {
+					throw new Error(`Image upload failed: ${error.message}`);
+				});
+		},
+		[restClient]
+	);
+
 	return <Editor
 		initialValue={value}
 		tinymceScriptSrc="https://zavadil.eu/tinymce8/tinymce.min.js"
@@ -16,7 +31,9 @@ export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps
 			promotion: false,
 			branding: false,
 			plugins: 'advlist autolink lists link image',
-			toolbar: 'undo redo | bold italic | bullist numlist',
+			toolbar: 'undo redo | bold italic | image | bullist numlist',
+			skin: userSession.theme === 'dark' ? 'oxide-dark' : undefined,
+			images_upload_handler: imageUploadHandler
 		}}
 		onChange={(evt, editor) => onChange(editor.getContent())}
 	/>
