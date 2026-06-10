@@ -30,8 +30,9 @@ export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps
 		init={{
 			promotion: false,
 			branding: false,
-			plugins: 'advlist autolink lists link image',
-			toolbar: 'undo redo | bold italic | image | bullist numlist',
+			language: 'cs',
+			plugins: 'advlist autolink lists link image fullscreen',
+			toolbar: 'undo redo | bold italic | image | bullist numlist | fullscreen',
 			skin: userSession.theme === 'dark' ? 'oxide-dark' : undefined,
 			images_upload_handler: imageUploadHandler
 		}}

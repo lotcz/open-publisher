@@ -1,4 +1,4 @@
-import {Button, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
+import {Button, Form, Spinner, Stack} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
@@ -12,7 +12,6 @@ import RefreshIconButton from "../general/RefreshIconButton";
 import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
 import ArticleStateBadge from "./ArticleStateBadge";
-import ArticlePreview from "./ArticlePreview";
 import {ArticleImage} from "../images/ArticleImage";
 import {ImageUploadButton} from "../images/ImageUploadButton";
 
@@ -125,15 +124,17 @@ export default function ArticleDetail() {
 
 			<Form className="px-3">
 				<Stack direction="vertical" gap={2}>
-					<FormRowControl
-						label="Nadpis"
-						type="text"
-						value={data.header}
-						onChange={(e) => {
-							data.header = e.target.value;
-							onChanged();
-						}}
-					/>
+					<div style={{maxWidth: 900}}>
+						<FormRowControl
+							label="Nadpis"
+							type="text"
+							value={data.header}
+							onChange={(e) => {
+								data.header = e.target.value;
+								onChanged();
+							}}
+						/>
+					</div>
 
 					<FormRow label="Stav publikace">
 						<Stack direction="horizontal" gap={2}>
@@ -229,27 +230,17 @@ export default function ArticleDetail() {
 						</div>
 					</FormRow>
 
-					<Row>
-						<Col>
-							<FormRow label="Text článku">
-								<TinyMceInput
-									initialValue={StringUtil.getNonEmpty(data.contentHtml)}
-									onChange={(e) => {
-										data.contentHtml = e;
-										onChanged();
-									}}
-								/>
-							</FormRow>
-						</Col>
-						<Col style={{maxWidth: '50%'}}>
-							<FormRow label="Náhled">
-								<div>
-									<ArticlePreview article={data}/>
-								</div>
-							</FormRow>
-						</Col>
-					</Row>
-
+					<FormRow label="Text článku">
+						<div style={{maxWidth: 900}}>
+							<TinyMceInput
+								initialValue={StringUtil.getNonEmpty(data.contentHtml)}
+								onChange={(e) => {
+									data.contentHtml = e;
+									onChanged();
+								}}
+							/>
+						</div>
+					</FormRow>
 
 				</Stack>
 			</Form>

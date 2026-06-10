@@ -48,13 +48,11 @@ export class AccessTokenManager {
 	 * If successful returns AccessTokenPayload. If fails, promise is rejected.
 	 */
 	initialize(): Promise<AccessTokenPayload> {
-		this.setAccessToken(undefined);
-
 		const urlToken = UrlUtil.extractParamFromUrl(document.location.toString(), TOKEN_URL_NAME);
 		if (StringUtil.notBlank(urlToken)) {
 			return this.verifyAccessToken(urlToken).then(
 				(accessToken) => {
-					this.accessToken = accessToken;
+					this.setAccessToken(accessToken);
 					return accessToken;
 				}
 			).finally(
@@ -67,8 +65,8 @@ export class AccessTokenManager {
 
 		const storageToken = JsonUtil.parse(localStorage.getItem(TOKEN_STORAGE_NAME));
 		if (OAuthUtil.isValidToken(storageToken)) {
-			this.setAccessToken(storageToken);
-			return storageToken;
+			this.accessToken = storageToken;
+			return Promise.resolve(storageToken);
 		}
 
 		return Promise.reject();
