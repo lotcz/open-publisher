@@ -136,7 +136,6 @@ export default function UserDetail() {
 							</IconButton>
 						</>
 					}
-
 				</Stack>
 			</div>
 

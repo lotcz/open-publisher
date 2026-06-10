@@ -1,5 +1,5 @@
 - better article editing
-- change password
+- import from Word
 - invitation email
 - grant guest access
 - wordpress plugin

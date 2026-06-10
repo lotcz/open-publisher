@@ -1,14 +1,15 @@
-import {useEffect, useState} from "react";
+import {FormEvent, useCallback, useEffect, useState} from "react";
 import {Button, Form, Stack} from "react-bootstrap";
 import {FormRowControl, Spread} from "zavadil-react-common";
 import {StringUtil} from "zavadil-ts-common";
 
 export type LoginPageProps = {
+	lastLogin?: string;
 	onConfirmed: (login: string, password: string) => any;
 }
 
-export function LoginPage({onConfirmed}: LoginPageProps) {
-	const [email, setEmail] = useState<string>('');
+export function LoginPage({onConfirmed, lastLogin}: LoginPageProps) {
+	const [email, setEmail] = useState<string>(lastLogin || '');
 	const [password, setPassword] = useState<string>('');
 	const [valid, setValid] = useState<boolean>(false);
 
@@ -16,19 +17,23 @@ export function LoginPage({onConfirmed}: LoginPageProps) {
 		setValid(StringUtil.notBlank(email) && StringUtil.notBlank(password));
 	}, [email, password]);
 
+	const confirm = useCallback(
+		(e: FormEvent) => {
+			e.stopPropagation();
+			e.preventDefault();
+			if (valid) onConfirmed(email, password);
+		},
+		[email, password, valid, onConfirmed]
+	);
+
 	return (
 		<Spread>
 			<div className="d-flex flex-column align-items-center justify-content-center">
-				<Form
-					onSubmit={
-						() => {
-							if (valid) onConfirmed(email, password);
-						}
-					}
-				>
+				<Form onSubmit={confirm}>
 					<Stack gap={3}>
 						<FormRowControl
 							id="email"
+							name="email"
 							label="Email"
 							type="email"
 							value={email}
@@ -36,6 +41,7 @@ export function LoginPage({onConfirmed}: LoginPageProps) {
 						/>
 						<FormRowControl
 							id="password"
+							name="password"
 							label="Heslo"
 							type="password"
 							value={password}
@@ -45,7 +51,7 @@ export function LoginPage({onConfirmed}: LoginPageProps) {
 							<Button
 								type="submit"
 								disabled={!valid}
-								onClick={() => onConfirmed(email, password)}
+								onClick={confirm}
 							>
 								Přihlásit
 							</Button>

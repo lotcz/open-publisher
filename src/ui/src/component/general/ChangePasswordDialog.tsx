@@ -1,6 +1,6 @@
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Stack} from "react-bootstrap";
+import {Button, Form, Modal, ModalBody, ModalHeader, Stack} from "react-bootstrap";
 import {BasicDialogProps, FormRowControl} from "zavadil-react-common";
-import {useEffect, useState} from "react";
+import {FormEvent, useCallback, useEffect, useState} from "react";
 import {StringUtil} from "zavadil-ts-common";
 
 export type ChangePasswordDialogProps = BasicDialogProps & {
@@ -16,6 +16,15 @@ export default function ChangePasswordDialog({onClose, onConfirm, name, text}: C
 		setValid(StringUtil.notBlank(password) && StringUtil.notBlank(passwordConfirm) && password === passwordConfirm);
 	}, [password, passwordConfirm]);
 
+	const confirm = useCallback(
+		(e: FormEvent) => {
+			e.stopPropagation();
+			e.preventDefault();
+			if (valid) onConfirm(password);
+		},
+		[password, valid, onConfirm]
+	);
+
 	return <Modal show={true} onHide={onClose}>
 		{
 			name && <ModalHeader>{name}</ModalHeader>
@@ -24,27 +33,32 @@ export default function ChangePasswordDialog({onClose, onConfirm, name, text}: C
 			{
 				text && <p>{text}</p>
 			}
-			<Stack gap={3}>
-				<FormRowControl
-					label="Nové Heslo"
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-				/>
-				<FormRowControl
-					label="Nové heslo znovu pro kontrolu"
-					type="password"
-					value={passwordConfirm}
-					onChange={(e) => setPasswordConfirm(e.target.value)}
-				/>
-			</Stack>
+			<Form onSubmit={confirm}>
+				<Stack gap={3}>
+					<FormRowControl
+						id="new_password"
+						name="new_password"
+						label="Nové Heslo"
+						type="password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
+					<FormRowControl
+						id="new_password_confirm"
+						name="new_password_confirm"
+						label="Nové heslo znovu pro kontrolu"
+						type="password"
+						value={passwordConfirm}
+						onChange={(e) => setPasswordConfirm(e.target.value)}
+					/>
+					<div className="d-flex justify-content-center align-items-center gap-3">
+						<Button onClick={onClose} variant="link">Zpět</Button>
+						<Button type="submit" onClick={confirm} disabled={!valid} variant="success">Změnit heslo</Button>
+					</div>
+				</Stack>
+			</Form>
 		</ModalBody>
-		<ModalFooter>
-			<div className="d-flex justify-content-center align-items-center gap-3">
-				<Button onClick={onClose} variant="link">Zpět</Button>
-				<Button onClick={() => onConfirm(password)} disabled={!valid} variant="success">Změnit heslo</Button>
-			</div>
-		</ModalFooter>
 	</Modal>
+
 }
 

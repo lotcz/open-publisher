@@ -14,6 +14,7 @@ import {DateTimeCs} from "../../general/DateTimeCs";
 const HEADER: SelectableTableHeader<User> = [
 	{name: "id", label: "ID"},
 	{name: "email", label: "Email"},
+	{name: "userRole", label: "Role"},
 	{name: "isActive", label: "Aktivní", renderer: (u) => u.isActive ? 'Ano' : 'Ne'},
 	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
 	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
