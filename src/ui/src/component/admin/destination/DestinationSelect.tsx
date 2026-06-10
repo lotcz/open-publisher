@@ -2,12 +2,12 @@ import {AutocompleteEntitySelect} from "zavadil-react-common";
 import {useRestClient} from "../../../client/OpRestClient";
 import {Destination} from "../../../types/Destination";
 
-export type DestinationIdSelectProps = {
+export type DestinationSelectProps = {
 	destination?: Destination | null;
 	onChange: (destination?: Destination | null) => any;
 }
 
-export default function DestinationSelect({destination, onChange}: DestinationIdSelectProps) {
+export default function DestinationSelect({destination, onChange}: DestinationSelectProps) {
 	const restClient = useRestClient();
 
 	return <AutocompleteEntitySelect

@@ -1,8 +1,6 @@
 package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.UrlBuilder;
-import eu.zavadil.java.oauth.common.JwtEncoder;
-import eu.zavadil.java.oauth.common.token.JwtAccessToken;
 import eu.zavadil.java.spring.common.exceptions.BadRequestException;
 import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
 import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
@@ -15,6 +13,7 @@ import eu.zavadil.openpublisher.data.articleImage.ArticleImage;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.payload.ImportedArticlePayload;
+import eu.zavadil.openpublisher.service.AccessService;
 import eu.zavadil.openpublisher.service.ArticleImportService;
 import eu.zavadil.openpublisher.service.ArticlesService;
 import eu.zavadil.openpublisher.service.UsersService;
@@ -130,12 +129,13 @@ public class ArticlesController {
 	private String urlBase;
 
 	@Autowired
-	JwtEncoder jwtEncoder;
-
-	@Autowired
 	private UsersService usersService;
 
+	@Autowired
+	private AccessService accessService;
+
 	@PostMapping("{id}/grant-guest-access/{partnerEmail}")
+	@Secured({UserRole.EDITOR_ROLE_NAME, UserRole.ADMIN_ROLE_NAME})
 	public String grantGuestAccess(
 		@PathVariable int id,
 		@PathVariable String partnerEmail
@@ -153,12 +153,15 @@ public class ArticlesController {
 		user.setActive(true);
 		this.usersService.save(user);
 
-		JwtAccessToken token = this.usersService.createAccessToken(user);
+		article.setPartnerId(user.getId());
+		this.articlesService.save(article);
+
+		String token = this.accessService.createEncodedAccessToken(user);
 		String url = UrlBuilder.of(this.urlBase)
 			.addPath("clanky/detail")
 			.addPath(article.getId().toString())
-			.addQuery("t", this.jwtEncoder.encodeToken(token))
-			.toString();
+			.addQuery("t", token)
+			.buildAsString();
 
 		return url;
 	}

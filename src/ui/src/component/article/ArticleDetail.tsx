@@ -17,6 +17,7 @@ import {FileUploadButton} from "../general/FileUploadButton";
 import {ImageUploadButton} from "../images/ImageUploadButton";
 import {WaitingDialogContext} from "../../util/WaitingDialogContext";
 import UserPreview from "../admin/user/UserPreview";
+import {GrantGuestAccessDialogContext} from "../../util/GrantGuestAccessDialogContext";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -30,6 +31,7 @@ export default function ArticleDetail() {
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
 	const waitingDialog = useContext(WaitingDialogContext);
+	const grantGuestAccessDialog = useContext(GrantGuestAccessDialogContext);
 	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<ArticleStub>();
 	const [changed, setChanged] = useState<boolean>(false);
@@ -124,6 +126,26 @@ export default function ArticleDetail() {
 					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
 						Smazat
 					</DeleteButton>
+					{
+						session.user.userRole !== 'Guest' && <Button
+							disabled={changed || !data.id}
+							onClick={
+								() => {
+									if (!data.id) return;
+									grantGuestAccessDialog.show(
+										{
+											articleId: data.id,
+											onClose: () => grantGuestAccessDialog.hide(),
+											onConfirm: (url: string) => {
+												grantGuestAccessDialog.hide();
+												reload();
+											}
+										}
+									)
+								}
+							}
+						>Udělit přístup</Button>
+					}
 				</Stack>
 			</div>
 
@@ -206,7 +228,7 @@ export default function ArticleDetail() {
 						</div>
 					</FormRow>
 
-					<FormRow label="Autor">
+					<FormRow label="Vlastník">
 						<div style={{maxWidth: 900}}>
 							<UserPreview userId={data.ownerId}/>
 						</div>

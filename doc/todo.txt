@@ -2,7 +2,10 @@
   - tabs (body/publication/history)
   - preview modal
 - grant guest access
+  - validate email
 - article approval
+- add user name
+- show user's articles
 - invitation email
 - wordpress plugin
 - zEngine integration

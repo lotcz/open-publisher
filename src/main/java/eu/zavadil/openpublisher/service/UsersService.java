@@ -1,7 +1,5 @@
 package eu.zavadil.openpublisher.service;
 
-import eu.zavadil.java.oauth.common.token.JwtAccessToken;
-import eu.zavadil.java.spring.common.exceptions.NotAuthorizedException;
 import eu.zavadil.java.spring.common.paging.PagingUtils;
 import eu.zavadil.java.util.HashUtils;
 import eu.zavadil.java.util.StringUtils;
@@ -15,21 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-
 @Service
 @Slf4j
 public class UsersService {
 
 	private final String DEFAULT_ALGORITHM = "SHA-256";
-
-	@Value("${oauth.audience-name}")
-	String oauthAudience;
-
-	@Value("${oauth.access.expires-after}")
-	Duration accessExpiresAfter;
 
 	@Value("${oauth.admin.email}")
 	String superUserEmail;
@@ -61,28 +49,6 @@ public class UsersService {
 			}
 		} else {
 			log.info("Default superuser email is not configured");
-		}
-	}
-
-	public JwtAccessToken createAccessToken(User user) {
-		JwtAccessToken token = new JwtAccessToken();
-		token.setIssuer(this.oauthAudience);
-		token.setSubject(user.getEmail());
-		token.setAudience(this.oauthAudience);
-		token.setIssuedAt(Instant.now());
-		token.setExpiration(Instant.now().plus(this.accessExpiresAfter));
-		token.setScopes(List.of());
-		return token;
-	}
-
-	public void verifyAccessToken(JwtAccessToken token) {
-		if (!StringUtils.safeEquals(this.oauthAudience, token.getAudience())) {
-			log.trace("Audience mismatch! Required: {}, Provided: {}", this.oauthAudience, token.getAudience());
-			throw new NotAuthorizedException("Invalid audience!");
-		}
-		if (!StringUtils.safeEquals(this.oauthAudience, token.getIssuer())) {
-			log.trace("Issuer mismatch! Required: {}, Provided: {}", this.oauthAudience, token.getIssuer());
-			throw new NotAuthorizedException("Invalid issuer!");
 		}
 	}
 

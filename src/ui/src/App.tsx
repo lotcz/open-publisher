@@ -27,6 +27,8 @@ import {BasicLocalization, MemoryDictionary} from "zavadil-ts-common";
 import ChangePasswordDialog, {ChangePasswordDialogProps} from "./component/general/ChangePasswordDialog";
 import {ChangePasswordDialogContext, ChangePasswordDialogContextContent} from "./util/ChangePasswordDialogContext";
 import {LoginPage} from "./component/LoginPage";
+import GrantGuestAccessDialog, {GrantGuestAccessDialogProps} from "./component/general/GrantGuestAccessDialog";
+import {GrantGuestAccessDialogContext, GrantGuestAccessDialogContextContent} from "./util/GrantGuestAccessDialogContext";
 
 export default function App() {
 	const userAlerts = useContext(UserAlertsContext);
@@ -43,6 +45,7 @@ export default function App() {
 	const [waitingDialog, setWaitingDialog] = useState<WaitingDialogProps>();
 	const [uploadImageDialog, setUploadImageDialog] = useState<UploadImageModalProps>();
 	const [changePasswordDialog, setChangePasswordDialog] = useState<ChangePasswordDialogProps>();
+	const [grantGuestAccessDialog, setGrantGuestAccessDialog] = useState<GrantGuestAccessDialogProps>();
 
 	const localization = useMemo(
 		() => {
@@ -120,6 +123,13 @@ export default function App() {
 		}
 	}, []);
 
+	const grantGuestAccessDialogContext = useMemo<GrantGuestAccessDialogContextContent>(() => {
+		return {
+			show: (props: GrantGuestAccessDialogProps) => setGrantGuestAccessDialog(props),
+			hide: () => setGrantGuestAccessDialog(undefined),
+		}
+	}, []);
+
 	const restInitialize = useCallback(() => {
 		setSessionInitialized(undefined);
 		setMessage('Inicializace...');
@@ -156,57 +166,60 @@ export default function App() {
 							<WaitingDialogContext.Provider value={waitingDialogContext}>
 								<ConfirmDialogContext.Provider value={confirmDialogContext}>
 									<ChangePasswordDialogContext.Provider value={changePasswordDialogContext}>
-										<LocalizationContext.Provider value={localization}>
-											<div className="min-h-100 d-flex flex-column align-items-stretch">
-												{sessionInitialized === undefined && (
-													<Spread>
-														<div className="d-flex flex-column align-items-center">
-															<div>
-																<Spinner/>
+										<GrantGuestAccessDialogContext.Provider value={grantGuestAccessDialogContext}>
+											<LocalizationContext.Provider value={localization}>
+												<div className="min-h-100 d-flex flex-column align-items-stretch">
+													{sessionInitialized === undefined && (
+														<Spread>
+															<div className="d-flex flex-column align-items-center">
+																<div>
+																	<Spinner/>
+																</div>
+																<div>
+																	{message}
+																</div>
 															</div>
-															<div>
-																{message}
-															</div>
-														</div>
-													</Spread>
-												)}
-												{sessionInitialized === false && <LoginPage
-													lastLogin={lastLogin}
-													onConfirmed={
-														(login, password) => {
-															setSessionInitialized(undefined);
-															setMessage('Probíhá přihlašování...');
-															setLastLogin(login);
-															restClient.logIn(login, password)
-																.then((at) => setLoggedIn(true))
-																.catch((e) => {
-																	let message = 'Přihlášení selhalo';
-																	if (e instanceof Error) {
-																		message += `: ${e.message}`;
-																	} else if (typeof e === 'string') {
-																		message += `: ${e}`;
-																	}
-																	userAlerts.err(message);
-																	setLoggedIn(false);
-																});
+														</Spread>
+													)}
+													{sessionInitialized === false && <LoginPage
+														lastLogin={lastLogin}
+														onConfirmed={
+															(login, password) => {
+																setSessionInitialized(undefined);
+																setMessage('Probíhá přihlašování...');
+																setLastLogin(login);
+																restClient.logIn(login, password)
+																	.then((at) => setLoggedIn(true))
+																	.catch((e) => {
+																		let message = 'Přihlášení selhalo';
+																		if (e instanceof Error) {
+																			message += `: ${e.message}`;
+																		} else if (typeof e === 'string') {
+																			message += `: ${e}`;
+																		}
+																		userAlerts.err(message);
+																		setLoggedIn(false);
+																	});
+															}
 														}
+													/>
 													}
-												/>
-												}
-												{sessionInitialized === true && (
-													<>
-														<Header/>
-														<Main/>
-														<Footer/>
-													</>
-												)}
-												{confirmDialog && <ConfirmDialog {...confirmDialog} />}
-												{waitingDialog && <WaitingDialog {...waitingDialog} />}
-												{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
-												{changePasswordDialog && <ChangePasswordDialog {...changePasswordDialog} />}
-												{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
-											</div>
-										</LocalizationContext.Provider>
+													{sessionInitialized === true && (
+														<>
+															<Header/>
+															<Main/>
+															<Footer/>
+														</>
+													)}
+													{confirmDialog && <ConfirmDialog {...confirmDialog} />}
+													{waitingDialog && <WaitingDialog {...waitingDialog} />}
+													{uploadImageDialog && <UploadImageModal {...uploadImageDialog} />}
+													{changePasswordDialog && <ChangePasswordDialog {...changePasswordDialog} />}
+													{grantGuestAccessDialog && <GrantGuestAccessDialog {...grantGuestAccessDialog} />}
+													{showAlerts && <UserAlertsWidget userAlerts={userAlerts}/>}
+												</div>
+											</LocalizationContext.Provider>
+										</GrantGuestAccessDialogContext.Provider>
 									</ChangePasswordDialogContext.Provider>
 								</ConfirmDialogContext.Provider>
 							</WaitingDialogContext.Provider>

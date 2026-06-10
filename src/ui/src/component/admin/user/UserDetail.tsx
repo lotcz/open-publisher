@@ -1,19 +1,17 @@
-import {Form, Spinner, Stack} from "react-bootstrap";
+import {Button, Form, Spinner, Stack} from "react-bootstrap";
 import {useParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
-import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton, Switch} from "zavadil-react-common";
+import {NumberUtil} from "zavadil-ts-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import {User} from "../../../types/User";
 import BackIconLink from "../../general/BackIconLink";
 import RefreshIconButton from "../../general/RefreshIconButton";
-import SyncStateSelect from "./SyncStateSelect";
 import UserRoleSelect from "./UserRoleSelect";
 import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogContext";
 import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
-import {BiShekel} from "react-icons/bi";
 
 export default function UserDetail() {
 	const {id} = useParams();
@@ -131,9 +129,9 @@ export default function UserDetail() {
 							<DeleteButton loading={deleting} onClick={deleteAccount}>
 								Delete
 							</DeleteButton>
-							<IconButton onClick={changePassword} icon={<BiShekel/>}>
+							<Button onClick={changePassword}>
 								Změnit heslo
-							</IconButton>
+							</Button>
 						</>
 					}
 				</Stack>
@@ -173,28 +171,6 @@ export default function UserDetail() {
 						}}
 					/>
 
-					<FormRowControl
-						label="OAuth subject"
-						type="text"
-						disabled={true}
-						value={StringUtil.getNonEmpty(data.oauthSubject)}
-						onChange={(e) => {
-							data.oauthSubject = e.target.value;
-							onChanged();
-						}}
-					/>
-
-					<FormRow label="OAuth synchronizace">
-						<div className="float-start">
-							<SyncStateSelect
-								state={data.syncState}
-								onChange={(e) => {
-									data.syncState = e;
-									onChanged();
-								}}
-							/>
-						</div>
-					</FormRow>
 				</Stack>
 			</Form>
 		</div>

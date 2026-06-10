@@ -18,8 +18,4 @@ export class UsersClient extends EntityClient<User> {
 		return this.client.put(`${this.name}/${userId}/password`, password);
 	}
 
-	createRefreshToken(userId: number): Promise<string> {
-		return this.client.post(`${this.name}/${userId}/refresh-token`).then((r) => r.text());
-	}
-
 }

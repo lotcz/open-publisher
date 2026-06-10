@@ -1,9 +1,9 @@
 package eu.zavadil.openpublisher.config.security;
 
-import eu.zavadil.java.oauth.common.JwtEncoder;
 import eu.zavadil.java.oauth.common.token.JwtAccessToken;
 import eu.zavadil.java.util.StringUtils;
 import eu.zavadil.openpublisher.data.user.User;
+import eu.zavadil.openpublisher.service.AccessService;
 import eu.zavadil.openpublisher.service.UsersService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +28,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 	private String authHeaderName;
 
 	@Autowired
-	JwtEncoder jwtEncoder;
+	AccessService accessService;
 
 	@Autowired
 	UsersService usersService;
@@ -38,8 +38,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 			String header = request.getHeader(this.authHeaderName);
 			if (StringUtils.safeStartsWith(header, "Bearer ")) {
 				String tokenRaw = StringUtils.safeSubstr(header, 7, header.length() - 7);
-				JwtAccessToken token = jwtEncoder.verifyAndDecodeToken(tokenRaw, JwtAccessToken.class);
-				this.usersService.verifyAccessToken(token);
+				JwtAccessToken token = this.accessService.decodeAndVerifyAccessToken(tokenRaw);
 				String subject = token.getSubject();
 				User user = this.usersService.loadByEmail(subject);
 				if (user != null) return new UserAuthentication(user);
