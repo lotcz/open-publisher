@@ -10,6 +10,7 @@ import {UserAlertsContext} from "../../util/UserAlerts";
 import RefreshIconButton from "../general/RefreshIconButton";
 import ArticleStateBadge from "./ArticleStateBadge";
 import {DateTimeCs} from "../general/DateTimeCs";
+import {useUserSession} from "../../util/UserSession";
 
 const HEADER: SelectableTableHeader<Article> = [
 	{name: "header", label: "Nadpis"},
@@ -27,6 +28,7 @@ export default function ArticlesList() {
 	const navigator = useNavigator();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
+	const userSession = useUserSession();
 	const [data, setData] = useState<Page<Article> | null>(null);
 
 	const paging = useMemo(
@@ -69,9 +71,12 @@ export default function ArticlesList() {
 			<div className="pt-2 ps-3">
 				<Stack direction="horizontal" gap={2}>
 					<RefreshIconButton onClick={reload}/>
-					<Button onClick={() => navigator.articles.add()} className="text-nowrap">
-						+ Nový článek
-					</Button>
+					{
+						userSession.user.userRole !== 'Guest' &&
+						<Button onClick={() => navigator.articles.add()} className="text-nowrap">
+							+ Nový článek
+						</Button>
+					}
 					<div style={{width: "250px"}}>
 						<Form onSubmit={applySearch}>
 							<TextInputWithReset

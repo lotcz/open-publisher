@@ -16,7 +16,7 @@ export default function Dashboard() {
 			<p>
 				Jste přihlášeni jako uživatel <strong>{userSession.user.email}</strong>,
 				vaše role je <strong>{userSession.user.userRole}</strong>.
-				Odhlásit se můžete <Link to="" onClick={() => restClient.logout()}>zde</Link>.
+				Odhlásit se můžete <Link to="" onClick={() => restClient.logOut()}>zde</Link>.
 			</p>
 		</div>
 	);

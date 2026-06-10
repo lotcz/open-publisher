@@ -1,5 +1,4 @@
 import conf from "../config/conf.json";
-import {OAuthRefreshTokenProvider, RestClientWithOAuth} from "zavadil-ts-common";
 import {EnumerationsClient} from "./parts/EnumerationsClient";
 import {createContext, useContext} from "react";
 import {OpStats} from "../types/Stats";
@@ -7,8 +6,12 @@ import {ArticlesClient} from "./parts/ArticlesClient";
 import {DestinationsClient} from "./parts/DestinationsClient";
 import {UsersClient} from "./parts/UsersClient";
 import {ImagesClient} from "./parts/ImagesClient";
+import {AccessTokenPayload, RestClient} from "zavadil-ts-common";
+import {AccessTokenManager} from "./AccessTokenManager";
 
-export class OpRestClient extends RestClientWithOAuth {
+export class OpRestClient extends RestClient {
+
+	tokenManager: AccessTokenManager;
 
 	enumerations: EnumerationsClient;
 
@@ -20,8 +23,10 @@ export class OpRestClient extends RestClientWithOAuth {
 
 	images: ImagesClient;
 
-	constructor(refreshTokenProvider?: OAuthRefreshTokenProvider) {
-		super(conf.API_URL, refreshTokenProvider);
+	constructor(onLogout: () => any) {
+		super(conf.API_URL);
+
+		this.tokenManager = new AccessTokenManager(conf.API_URL, onLogout);
 
 		this.enumerations = new EnumerationsClient(this);
 		this.articles = new ArticlesClient(this);
@@ -36,6 +41,28 @@ export class OpRestClient extends RestClientWithOAuth {
 
 	stats(): Promise<OpStats> {
 		return this.getJson("status/stats");
+	}
+
+	initialize(): Promise<AccessTokenPayload> {
+		return this.tokenManager.initialize();
+	}
+
+	logIn(login: string, password: string): Promise<AccessTokenPayload> {
+		return this.tokenManager.logIn(login, password);
+	}
+
+	logOut() {
+		return this.tokenManager.logOut();
+	}
+
+	getHeaders(endpoint: string): Promise<Headers> {
+		return this.tokenManager.getAccessTokenRaw()
+			.then((accessToken) =>
+				super.getHeaders(endpoint).then((headers) => {
+					headers.set("Authorization", `Bearer ${accessToken}`);
+					return headers;
+				}),
+			);
 	}
 
 }

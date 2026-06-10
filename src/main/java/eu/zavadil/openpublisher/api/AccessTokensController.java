@@ -50,9 +50,9 @@ public class AccessTokensController {
 			this.usersService.verifyAccessToken(claims);
 			return JwtJsonUtils.toJson(claims);
 		} catch (JwtTokenExpiredException e) {
-			throw new NotAuthorizedException("Access token expired!", e);
+			throw new NotAuthorizedException("Platnost tokenu vypršela!", e);
 		} catch (JwtTokenInvalidException e) {
-			throw new BadRequestException("Invalid access token!", e);
+			throw new BadRequestException("Neplatný token!", e);
 		}
 	}
 
@@ -63,13 +63,13 @@ public class AccessTokensController {
 		String login = payload.getLogin();
 		String password = payload.getPassword();
 
-		if (StringUtils.isBlank(login)) throw new BadRequestException("Login is empty!");
-		if (StringUtils.isBlank(password)) throw new BadRequestException("Password is empty!");
+		if (StringUtils.isBlank(login)) throw new BadRequestException("Přihlašovací jméno je prázdné!");
+		if (StringUtils.isBlank(password)) throw new BadRequestException("Heslo je prázdné!");
 
 		User user = this.usersService.loadByEmail(login);
-		if (user == null) throw new NotAuthorizedException("Unknown user!");
-		if (!user.isActive()) throw new NotAuthorizedException("User is not active!");
-		if (!this.usersService.verifyPassword(user, password)) throw new NotAuthorizedException("Invalid password!");
+		if (user == null) throw new NotAuthorizedException("Neznámý uživatel!");
+		if (!user.isActive()) throw new NotAuthorizedException("Uživatel není aktivní!");
+		if (!this.usersService.verifyPassword(user, password)) throw new NotAuthorizedException("Neplatné heslo!");
 
 		JwtAccessToken token = this.usersService.createAccessToken(user);
 		return this.encodeAccessToken(token);
@@ -83,13 +83,13 @@ public class AccessTokensController {
 			this.usersService.verifyAccessToken(refresh);
 
 			User user = this.usersService.loadByEmail(refresh.getSubject());
-			if (user == null) throw new NotAuthorizedException("Unknown user!");
-			if (!user.isActive()) throw new NotAuthorizedException("User is not active!");
+			if (user == null) throw new NotAuthorizedException("Neznámý uživatel!");
+			if (!user.isActive()) throw new NotAuthorizedException("Uživatel není aktivní!");
 
 			JwtAccessToken token = this.usersService.createAccessToken(user);
 			return this.encodeAccessToken(token);
 		} catch (JwtTokenInvalidException e) {
-			throw new NotAuthorizedException("Provided refresh token is invalid", e);
+			throw new NotAuthorizedException("Token je neplatný!", e);
 		}
 	}
 
@@ -97,7 +97,7 @@ public class AccessTokensController {
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public AccessTokenPayload createAccessToken(@PathVariable int id) {
 		User user = this.usersService.loadById(id);
-		if (user == null) throw new IllegalArgumentException("User not found");
+		if (user == null) throw new IllegalArgumentException("Neznámý uživatel!");
 		JwtAccessToken token = this.usersService.createAccessToken(user);
 		return this.encodeAccessToken(token);
 	}

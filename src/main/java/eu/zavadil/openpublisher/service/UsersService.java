@@ -7,6 +7,7 @@ import eu.zavadil.java.util.HashUtils;
 import eu.zavadil.java.util.StringUtils;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRepository;
+import eu.zavadil.openpublisher.data.user.UserRole;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -48,6 +50,7 @@ public class UsersService {
 				superuser = new User();
 				superuser.setEmail(this.superUserEmail);
 				superuser.setActive(true);
+				superuser.setUserRole(UserRole.Admin);
 				this.save(superuser);
 			} else {
 				log.info("Default superuser {} found", this.superUserEmail);
@@ -68,6 +71,7 @@ public class UsersService {
 		token.setAudience(this.oauthAudience);
 		token.setIssuedAt(Instant.now());
 		token.setExpiration(Instant.now().plus(this.accessExpiresAfter));
+		token.setScopes(List.of());
 		return token;
 	}
 

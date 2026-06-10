@@ -6,7 +6,6 @@ import {
 	ConfirmDialogContext,
 	ConfirmDialogContextData,
 	ConfirmDialogProps,
-	IconButton,
 	LocalizationContext,
 	Spread,
 	UserAlertsWidget
@@ -23,18 +22,20 @@ import Main from "./component/Main";
 import Header from "./component/Header";
 import Footer from "./component/Footer";
 import {Spinner} from "react-bootstrap";
-import {BsRepeat} from "react-icons/bs";
 import {User} from "./types/User";
 import {BasicLocalization, MemoryDictionary} from "zavadil-ts-common";
 import ChangePasswordDialog, {ChangePasswordDialogProps} from "./component/general/ChangePasswordDialog";
 import {ChangePasswordDialogContext, ChangePasswordDialogContextContent} from "./util/ChangePasswordDialogContext";
+import {LoginPage} from "./component/LoginPage";
 
 export default function App() {
 	const userAlerts = useContext(UserAlertsContext);
-	const restClient = useMemo(() => new OpRestClient(), []);
 	const navigate = useNavigate();
 	const appNavigator = useMemo(() => new OpAppNavigator(navigate), [navigate]);
-	const [initialized, setInitialized] = useState<boolean>();
+	const [loggedIn, setLoggedIn] = useState<boolean>();
+	const [sessionInitialized, setSessionInitialized] = useState<boolean>();
+	const [message, setMessage] = useState<string>();
+	const restClient = useMemo(() => new OpRestClient(() => setSessionInitialized(false)), []);
 	const [session, setSession] = useState<UserSession | null>(null);
 	const [showAlerts, setShowAlerts] = useState<boolean>();
 	const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogProps>();
@@ -52,18 +53,38 @@ export default function App() {
 		[]
 	);
 
-	const updateSessionValues = useCallback((s: UserSession) => {
-		document.documentElement.dataset.bsTheme = s.theme;
-	}, []);
-
 	const saveSession = useCallback(
 		(s: UserSession) => {
-			updateSessionValues(s);
+			document.documentElement.dataset.bsTheme = s.theme;
 			localStorage.setItem("op-session", JSON.stringify(s));
 			setSession({...s});
 		},
-		[updateSessionValues],
+		[],
 	);
+
+	useEffect(() => {
+		if (loggedIn && !sessionInitialized) {
+			restClient.users.profile().then(
+				(u: User) => {
+					let newSession: UserSession = new UserSession(u);
+					const json = localStorage.getItem("op-session");
+					if (json) {
+						const session = JSON.parse(json);
+						newSession.theme = session.theme;
+					}
+					saveSession(newSession);
+					setSessionInitialized(true);
+				}
+			).catch(
+				(e) => {
+					userAlerts.err(e);
+					setLoggedIn(false);
+				}
+			);
+		} else if (!loggedIn) {
+			setSessionInitialized(false);
+		}
+	}, [loggedIn, sessionInitialized]);
 
 	const confirmDialogContext = useMemo<ConfirmDialogContextData>(() => new ConfirmDialogContextData(setConfirmDialog), []);
 
@@ -99,34 +120,16 @@ export default function App() {
 	}, []);
 
 	const restInitialize = useCallback(() => {
-		setInitialized(undefined);
-		try {
-			restClient
-				.initialize()
-				.then(
-					() => restClient.users.profile().then(
-						(u: User) => {
-							let newSession: UserSession = new UserSession(u);
-							const json = localStorage.getItem("op-session");
-							if (json) {
-								const session = JSON.parse(json);
-								newSession.theme = session.theme;
-							}
-							setSession(newSession);
-							updateSessionValues(newSession);
-							setInitialized(true);
-						}
-					)
-				)
-				.catch((e) => {
-					userAlerts.err(`Rest initialization failed: ${e}`);
-					setInitialized(false);
-				});
-		} catch (e: any) {
-			userAlerts.err(`Rest initialization failed: ${e}`);
-			setInitialized(false);
-		}
-	}, [restClient, userAlerts, updateSessionValues]);
+		setSessionInitialized(undefined);
+		setMessage('Inicializace...');
+		restClient
+			.initialize()
+			.then(() => setLoggedIn(true))
+			.catch((e) => {
+				if (e) userAlerts.err(`Rest initialization failed: ${e}`);
+				setLoggedIn(false);
+			});
+	}, [restClient, userAlerts]);
 
 	const alertsChanged = useCallback(() => {
 		setShowAlerts(userAlerts.alerts.length > 0);
@@ -154,33 +157,40 @@ export default function App() {
 									<ChangePasswordDialogContext.Provider value={changePasswordDialogContext}>
 										<LocalizationContext.Provider value={localization}>
 											<div className="min-h-100 d-flex flex-column align-items-stretch">
-												{initialized === undefined && (
+												{sessionInitialized === undefined && (
 													<Spread>
 														<div className="d-flex flex-column align-items-center">
 															<div>
 																<Spinner/>
 															</div>
 															<div>
-																Inicializace...
+																{message}
 															</div>
 														</div>
 													</Spread>
 												)}
-												{initialized === false && (
-													<Spread>
-														<div className="d-flex flex-column align-items-center">
-															<div className="p-3 error">
-																Inicializace selhala!
-															</div>
-															<div>
-																<IconButton onClick={restInitialize} icon={<BsRepeat/>}>
-																	Opakovat
-																</IconButton>
-															</div>
-														</div>
-													</Spread>
-												)}
-												{initialized === true && (
+												{sessionInitialized === false && <LoginPage
+													onConfirmed={
+														(login, password) => {
+															setSessionInitialized(undefined);
+															setMessage('Probíhá přihlašování...');
+															restClient.logIn(login, password)
+																.then((at) => setLoggedIn(true))
+																.catch((e) => {
+																	let message = 'Přihlášení selhalo';
+																	if (e instanceof Error) {
+																		message += `: ${e.message}`;
+																	} else if (typeof e === 'string') {
+																		message += `: ${e}`;
+																	}
+																	userAlerts.err(message);
+																	setLoggedIn(false);
+																});
+														}
+													}
+												/>
+												}
+												{sessionInitialized === true && (
 													<>
 														<Header/>
 														<Main/>

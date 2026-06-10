@@ -34,7 +34,7 @@ export default function Header() {
 					<Dropdown.Menu>
 						<Dropdown.Header>Role: <strong>{session.user.userRole}</strong></Dropdown.Header>
 						<Dropdown.ItemText><LightSwitch/></Dropdown.ItemText>
-						<Dropdown.Item onClick={() => restClient.logout()}>Odhlásit</Dropdown.Item>
+						<Dropdown.Item onClick={() => restClient.logOut()}>Odhlásit</Dropdown.Item>
 					</Dropdown.Menu>
 				</Dropdown>
 			</Stack>
