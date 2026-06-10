@@ -1,7 +1,6 @@
 package eu.zavadil.openpublisher.config.security;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,11 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
 	@Value("${api.base-url}")
-	@Getter
 	private String apiBaseUrl;
 
 	@Value("${server.allowedOrigin}")
-	@Getter
 	private String allowedOrigin;
 
 	private final AuthenticationFilter authenticationFilter;

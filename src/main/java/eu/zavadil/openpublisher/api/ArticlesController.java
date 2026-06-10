@@ -1,6 +1,10 @@
 package eu.zavadil.openpublisher.api;
 
+import eu.zavadil.java.UrlBuilder;
+import eu.zavadil.java.oauth.common.JwtEncoder;
+import eu.zavadil.java.oauth.common.token.JwtAccessToken;
 import eu.zavadil.java.spring.common.exceptions.BadRequestException;
+import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
 import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
@@ -13,9 +17,11 @@ import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.payload.ImportedArticlePayload;
 import eu.zavadil.openpublisher.service.ArticleImportService;
 import eu.zavadil.openpublisher.service.ArticlesService;
+import eu.zavadil.openpublisher.service.UsersService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -115,4 +121,46 @@ public class ArticlesController {
 		}
 		return this.importService.parseDocx(file);
 	}
+
+	/*
+		ARTICLE GUEST ACCESS
+	 */
+
+	@Value("${server.allowedOrigin}")
+	private String urlBase;
+
+	@Autowired
+	JwtEncoder jwtEncoder;
+
+	@Autowired
+	private UsersService usersService;
+
+	@PostMapping("{id}/grant-guest-access/{partnerEmail}")
+	public String grantGuestAccess(
+		@PathVariable int id,
+		@PathVariable String partnerEmail
+	) {
+		ArticleStub article = this.articlesService.loadById(id);
+		if (article == null) throw new ResourceNotFoundException("Article not found!");
+
+		User user = this.usersService.loadByEmail(partnerEmail);
+		if (user == null) {
+			user = new User();
+			user.setEmail(partnerEmail);
+			user.setUserRole(UserRole.Guest);
+		}
+
+		user.setActive(true);
+		this.usersService.save(user);
+
+		JwtAccessToken token = this.usersService.createAccessToken(user);
+		String url = UrlBuilder.of(this.urlBase)
+			.addPath("clanky/detail")
+			.addPath(article.getId().toString())
+			.addQuery("t", this.jwtEncoder.encodeToken(token))
+			.toString();
+
+		return url;
+	}
+
 }

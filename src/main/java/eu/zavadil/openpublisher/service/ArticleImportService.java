@@ -67,7 +67,7 @@ public class ArticleImportService {
 						}
 
 						// Then the text of this run
-						String runText = run.getText(0);
+						String runText = run.text();
 						if (StringUtils.notBlank(runText)) {
 							// Preserve bold/italic
 							String span = escapeHtml(runText);

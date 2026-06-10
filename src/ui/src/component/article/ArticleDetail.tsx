@@ -16,6 +16,7 @@ import {ArticleImage} from "../images/ArticleImage";
 import {FileUploadButton} from "../general/FileUploadButton";
 import {ImageUploadButton} from "../images/ImageUploadButton";
 import {WaitingDialogContext} from "../../util/WaitingDialogContext";
+import UserPreview from "../admin/user/UserPreview";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -204,6 +205,20 @@ export default function ArticleDetail() {
 							</Stack>
 						</div>
 					</FormRow>
+
+					<FormRow label="Autor">
+						<div style={{maxWidth: 900}}>
+							<UserPreview userId={data.ownerId}/>
+						</div>
+					</FormRow>
+
+					{
+						data.partnerId && <FormRow label="Partner">
+							<div style={{maxWidth: 900}}>
+								<UserPreview userId={data.partnerId}/>
+							</div>
+						</FormRow>
+					}
 
 					<FormRow label="Hlavní obrázek">
 						<div className="float-start">

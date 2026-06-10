@@ -14,15 +14,17 @@ function WaitingDialog({onClose, onCancel, progress, max, name, text}: WaitingDi
 			name && <ModalHeader><Localize text={name}/></ModalHeader>
 		}
 		<ModalBody>
-			<Spinner/>
-			{
-				text && <div>{text}</div>
-			}
-			{
-				(progress !== undefined) && <div>
-					<ProgressBar min={0} max={max === undefined ? 1 : max} now={progress}/>
-				</div>
-			}
+			<div className="text-center">
+				<Spinner/>
+				{
+					text && <div>{text}</div>
+				}
+				{
+					(progress !== undefined) && <div>
+						<ProgressBar min={0} max={max === undefined ? 1 : max} now={progress}/>
+					</div>
+				}
+			</div>
 		</ModalBody>
 		{
 			onCancel &&

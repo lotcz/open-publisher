@@ -1,6 +1,8 @@
 - better article editing
-- import from Word
-- invitation email
+  - tabs (body/publication/history)
+  - preview modal
 - grant guest access
+- article approval
+- invitation email
 - wordpress plugin
 - zEngine integration

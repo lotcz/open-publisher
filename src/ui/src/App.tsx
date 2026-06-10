@@ -35,7 +35,8 @@ export default function App() {
 	const [loggedIn, setLoggedIn] = useState<boolean>();
 	const [sessionInitialized, setSessionInitialized] = useState<boolean>();
 	const [message, setMessage] = useState<string>();
-	const restClient = useMemo(() => new OpRestClient(() => setSessionInitialized(false)), []);
+	const [lastLogin, setLastLogin] = useState<string>();
+	const restClient = useMemo(() => new OpRestClient(() => setLoggedIn(false)), []);
 	const [session, setSession] = useState<UserSession | null>(null);
 	const [showAlerts, setShowAlerts] = useState<boolean>();
 	const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogProps>();
@@ -170,10 +171,12 @@ export default function App() {
 													</Spread>
 												)}
 												{sessionInitialized === false && <LoginPage
+													lastLogin={lastLogin}
 													onConfirmed={
 														(login, password) => {
 															setSessionInitialized(undefined);
 															setMessage('Probíhá přihlašování...');
+															setLastLogin(login);
 															restClient.logIn(login, password)
 																.then((at) => setLoggedIn(true))
 																.catch((e) => {

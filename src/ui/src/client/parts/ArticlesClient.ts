@@ -30,5 +30,9 @@ export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 		return this.client.postFormJson(`${this.name}/import/docx`, formData);
 	}
 
+	grantGuestAccess(articleId: string, partnerEmail: string) {
+		
+	}
+
 }
 
