@@ -59,7 +59,6 @@ public class AccessTokensController {
 	@PostMapping("/from-login")
 	@Operation(summary = "Obtain access token from login.")
 	public AccessTokenPayload login(@RequestBody RequestRefreshTokenFromLoginPayload payload) {
-		log.info("Creating refresh token from login {}", payload.getLogin());
 		String login = payload.getLogin();
 		String password = payload.getPassword();
 

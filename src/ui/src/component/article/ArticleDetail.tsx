@@ -13,7 +13,9 @@ import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
 import ArticleStateBadge from "./ArticleStateBadge";
 import {ArticleImage} from "../images/ArticleImage";
+import {FileUploadButton} from "../general/FileUploadButton";
 import {ImageUploadButton} from "../images/ImageUploadButton";
+import {WaitingDialogContext} from "../../util/WaitingDialogContext";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "images";
@@ -26,11 +28,13 @@ export default function ArticleDetail() {
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
+	const waitingDialog = useContext(WaitingDialogContext);
 	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<ArticleStub>();
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
+	const [importing, setImporting] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (!activeTab) return;
@@ -232,14 +236,43 @@ export default function ArticleDetail() {
 
 					<FormRow label="Text článku">
 						<div style={{maxWidth: 900}}>
-							<TinyMceInput
-								initialValue={StringUtil.getNonEmpty(data.contentHtml)}
-								onChange={(e) => {
-									data.contentHtml = e;
-									onChanged();
-								}}
-							/>
+							{
+								importing || <TinyMceInput
+									initialValue={StringUtil.getNonEmpty(data.contentHtml)}
+									onChange={(e) => {
+										data.contentHtml = e;
+										onChanged();
+									}}
+								/>
+							}
 						</div>
+					</FormRow>
+
+					<FormRow label="Import z formátu .docx">
+						<FileUploadButton
+							label="Nahrát..."
+							accept=".docx"
+							onSelected={
+								(file) => {
+									waitingDialog.show("Importuji docx...");
+									setImporting(true);
+									restClient.articles
+										.importDocx(file)
+										.then(
+											(imported) => {
+												data.header = imported.title;
+												data.contentHtml = imported.contentHtml;
+												onChanged();
+											}
+										)
+										.catch((e) => userAlerts.err(e))
+										.finally(() => {
+											setImporting(false);
+											waitingDialog.hide();
+										});
+								}
+							}
+						/>
 					</FormRow>
 
 				</Stack>

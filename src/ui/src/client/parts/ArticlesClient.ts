@@ -1,5 +1,5 @@
 import {EntityClientWithStub, Page, PagingRequest, PagingUtil, RestClient} from "zavadil-ts-common";
-import {Article, ArticleImage, ArticleStub} from "../../types/Article";
+import {Article, ArticleImage, ArticleStub, ImportedArticlePayload} from "../../types/Article";
 
 export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 	constructor(client: RestClient) {
@@ -22,6 +22,12 @@ export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 		let formData = new FormData();
 		formData.append("image", f);
 		return this.client.postFormJson(`${this.name}/${articleId}/images`, formData);
+	}
+
+	importDocx(file: File): Promise<ImportedArticlePayload> {
+		let formData = new FormData();
+		formData.append("file", file);
+		return this.client.postFormJson(`${this.name}/import/docx`, formData);
 	}
 
 }

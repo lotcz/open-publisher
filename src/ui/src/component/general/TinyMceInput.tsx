@@ -36,6 +36,6 @@ export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps
 			skin: userSession.theme === 'dark' ? 'oxide-dark' : undefined,
 			images_upload_handler: imageUploadHandler
 		}}
-		onChange={(evt, editor) => onChange(editor.getContent())}
+		onEditorChange={(evt, editor) => onChange(editor.getContent())}
 	/>
 }

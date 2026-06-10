@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.api;
 
+import eu.zavadil.java.spring.common.exceptions.BadRequestException;
 import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
@@ -9,6 +10,8 @@ import eu.zavadil.openpublisher.data.article.ArticleStub;
 import eu.zavadil.openpublisher.data.articleImage.ArticleImage;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
+import eu.zavadil.openpublisher.payload.ImportedArticlePayload;
+import eu.zavadil.openpublisher.service.ArticleImportService;
 import eu.zavadil.openpublisher.service.ArticlesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -98,4 +101,18 @@ public class ArticlesController {
 		this.articlesService.deleteImage(id, imageName);
 	}
 
+	/*
+		ARTICLE DOCX IMPORT
+	 */
+
+	@Autowired
+	private ArticleImportService importService;
+
+	@PostMapping("/import/docx")
+	public ImportedArticlePayload importDocx(@RequestParam("file") MultipartFile file) {
+		if (!file.getOriginalFilename().endsWith(".docx")) {
+			throw new BadRequestException("Only .docx format is supported!");
+		}
+		return this.importService.parseDocx(file);
+	}
 }

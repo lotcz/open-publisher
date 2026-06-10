@@ -25,3 +25,13 @@ export type ArticleImage = EntityBase & {
 	originalName: string;
 	articleId: number;
 }
+
+export type ImportedArticlePayload = {
+
+	title: string;
+
+	contentHtml: string;
+
+	images: Array<string>;
+
+}
