@@ -13,6 +13,7 @@ import UserRoleSelect from "./UserRoleSelect";
 import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogContext";
 import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
 import UserArticlesList from "./UserArticlesList";
+import UserArticleHistory from "./UserArticleHistory";
 
 const TAB_PARAM_NAME = "zalozka";
 const DEFAULT_TAB = "clanky";
@@ -221,9 +222,11 @@ export default function UserDetail() {
 					<div>
 						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
 							<Tab title="Články" eventKey="clanky"/>
+							<Tab title="Historie" eventKey="historie"/>
 						</Tabs>
 						<div className="px-3 py-1">
 							{activeTab === "clanky" && <UserArticlesList userId={data.id}/>}
+							{activeTab === "historie" && <UserArticleHistory userId={data.id}/>}
 						</div>
 					</div>
 				)

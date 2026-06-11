@@ -15,6 +15,7 @@ import ArticleDetailContentTab from "./ArticleDetailContentTab";
 import ArticleDetailPublishingTab from "./ArticleDetailPublishingTab";
 import ArticleStateBadge from "./ArticleStateBadge";
 import {BsCheck, BsEyeSlash, BsFileArrowDown, BsPersonAdd} from "react-icons/bs";
+import ArticleHistoryTab from "./ArticleHistoryTab";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "obsah";
@@ -274,10 +275,15 @@ export default function ArticleDetail() {
 							eventKey="publikace"
 						/>
 					}
+					{
+						data.id && (session.user.userRole === 'Superuser' || session.user.userRole === 'Admin') &&
+						<Tab title="Historie" eventKey="historie"/>
+					}
 				</Tabs>
 				<div className="px-3 py-1">
 					{activeTab === "obsah" && <ArticleDetailContentTab article={data} onChanged={onChanged}/>}
 					{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
+					{data.id && activeTab === "historie" && <ArticleHistoryTab articleId={data.id}/>}
 				</div>
 			</div>
 		</Stack>

@@ -8,6 +8,7 @@ import {UsersClient} from "./parts/UsersClient";
 import {ImagesClient} from "./parts/ImagesClient";
 import {AccessTokenPayload, RestClient} from "zavadil-ts-common";
 import {AccessTokenManager} from "./AccessTokenManager";
+import {ArticleHistoryClient} from "./parts/ArticleHistoryClient";
 
 export class OpRestClient extends RestClient {
 
@@ -23,6 +24,8 @@ export class OpRestClient extends RestClient {
 
 	images: ImagesClient;
 
+	articleHistory: ArticleHistoryClient;
+
 	constructor(onLogout: () => any) {
 		super(conf.API_URL);
 
@@ -33,6 +36,7 @@ export class OpRestClient extends RestClient {
 		this.destinations = new DestinationsClient(this);
 		this.users = new UsersClient(this);
 		this.images = new ImagesClient(this);
+		this.articleHistory = new ArticleHistoryClient(this);
 	}
 
 	version(): Promise<string> {

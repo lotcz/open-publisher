@@ -8,17 +8,15 @@ import eu.zavadil.java.spring.common.exceptions.ServerErrorException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
 import eu.zavadil.java.util.FileNameUtils;
+import eu.zavadil.java.util.IntegerUtils;
 import eu.zavadil.openpublisher.data.article.Article;
-import eu.zavadil.openpublisher.data.article.ArticleState;
 import eu.zavadil.openpublisher.data.article.ArticleStub;
+import eu.zavadil.openpublisher.data.articleHistory.ArticleHistoryAction;
 import eu.zavadil.openpublisher.data.articleImage.ArticleImage;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.payload.ImportedArticlePayload;
-import eu.zavadil.openpublisher.service.AccessService;
-import eu.zavadil.openpublisher.service.ArticleImportService;
-import eu.zavadil.openpublisher.service.ArticlesService;
-import eu.zavadil.openpublisher.service.UsersService;
+import eu.zavadil.openpublisher.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,9 @@ public class ArticlesController {
 
 	@Autowired
 	ArticlesService articlesService;
+
+	@Autowired
+	ArticleHistoryService articleHistoryService;
 
 	@GetMapping("")
 	public JsonPage<Article> loadPaged(
@@ -93,9 +94,12 @@ public class ArticlesController {
 
 	@PostMapping("")
 	@Secured({UserRole.EDITOR_ROLE_NAME})
-	public ArticleStub insert(@RequestBody ArticleStub document) {
+	public ArticleStub insert(
+		@AuthenticationPrincipal User user,
+		@RequestBody ArticleStub document
+	) {
 		document.setId(null);
-		return this.articlesService.save(document);
+		return this.articlesService.save(user, document);
 	}
 
 	@PutMapping("{id}")
@@ -104,33 +108,8 @@ public class ArticlesController {
 		@PathVariable int id,
 		@RequestBody ArticleStub document
 	) {
-		ArticleStub existing = this.articlesService.loadById(id);
-		if (existing == null) throw new ResourceNotFoundException("Článek", id);
-		if (!this.articlesService.canAccess(user, existing))
-			throw new NotAuthorizedException("K tomuto článku nemáte právo přístupu");
-		if (user.getUserRole() == UserRole.Guest && existing.getArticleState() == ArticleState.Approved) {
-			throw new NotAuthorizedException("Jako externí partner nemáte možnost upravovat schválené články");
-		}
-		if (user.getUserRole() == UserRole.Guest && document.getArticleState() == ArticleState.Approved) {
-			throw new NotAuthorizedException("Jako externí partner nemáte možnost schvalovat články");
-		}
-
-		// public fields
-		existing.setArticleState(document.getArticleState());
-		existing.setImageName(document.getImageName());
-		existing.setHeader(document.getHeader());
-		existing.setPreviewText(document.getPreviewText());
-		existing.setContentHtml(document.getContentHtml());
-		existing.setPublishDate(document.getPublishDate());
-
-		// admin fields
-		if (user.getUserRole().isAccessAllArticles()) {
-			existing.setPartnerId(document.getPartnerId());
-			existing.setOwnerId(document.getOwnerId());
-			existing.setDestinationId(document.getDestinationId());
-		}
-
-		return this.articlesService.save(existing);
+		document.setId(id);
+		return this.articlesService.save(user, document);
 	}
 
 	@DeleteMapping("{id}")
@@ -229,8 +208,16 @@ public class ArticlesController {
 		partner.setActive(true);
 		this.usersService.save(partner);
 
+		Integer oldPartnerId = article.getPartnerId();
 		article.setPartnerId(partner.getId());
-		this.articlesService.save(article);
+		this.articlesService.save(user, article);
+
+		if (oldPartnerId != null && !IntegerUtils.safeEquals(article.getPartnerId(), oldPartnerId)) {
+			User oldPartner = this.usersService.loadById(oldPartnerId);
+			this.articleHistoryService.save(article.getId(), user.getId(), ArticleHistoryAction.RevokeAccess, oldPartner.getEmail());
+		}
+
+		this.articleHistoryService.save(article.getId(), user.getId(), ArticleHistoryAction.GrantAccess, partner.getEmail());
 
 		String token = this.accessService.createEncodedAccessToken(partner);
 		String url = UrlBuilder.of(this.urlBase)
