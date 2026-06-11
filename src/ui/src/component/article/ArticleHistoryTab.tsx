@@ -2,7 +2,6 @@ import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
 import {Button, Form} from "react-bootstrap";
 import {Page, PagingRequest} from "zavadil-ts-common";
-import {useNavigator} from "../../navigator/OpAppNavigator";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import {ArticleHistory} from "../../types/ArticleHistory";
@@ -23,7 +22,6 @@ export type ArticleHistoryProps = {
 };
 
 export default function ArticleHistoryTab({articleId}: ArticleHistoryProps) {
-	const navigator = useNavigator();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const [data, setData] = useState<Page<ArticleHistory>>();
@@ -70,7 +68,7 @@ export default function ArticleHistoryTab({articleId}: ArticleHistoryProps) {
 						/>
 					</Form>
 				</div>
-				<Button onClick={applySearch} size="sm">Hledat</Button>
+				<Button onClick={applySearch}>Hledat</Button>
 			</div>
 			<div className="pt-2">
 				<TableWithSelect

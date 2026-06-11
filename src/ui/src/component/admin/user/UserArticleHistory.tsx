@@ -2,7 +2,6 @@ import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
 import {Button, Form} from "react-bootstrap";
 import {Page, PagingRequest} from "zavadil-ts-common";
-import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import {DateTimeCs} from "../../general/DateTimeCs";
@@ -23,7 +22,6 @@ export type UserArticleHistoryProps = {
 };
 
 export default function UserArticleHistory({userId}: UserArticleHistoryProps) {
-	const navigator = useNavigator();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const [data, setData] = useState<Page<ArticleHistory>>();

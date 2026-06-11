@@ -1,13 +1,11 @@
 import {Form, Stack} from "react-bootstrap";
-import {useSearchParams} from "react-router";
-import {useCallback, useContext, useState} from "react";
+import {useContext, useState} from "react";
 import {StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, FormRow, IconButton} from "zavadil-react-common";
+import {FormRow, IconButton} from "zavadil-react-common";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import {ArticleStub} from "../../types/Article";
 import TinyMceInput from "../general/TinyMceInput";
-import {useUserSession} from "../../util/UserSession";
 import {ArticleImage} from "../images/ArticleImage";
 import {FileUploadButton} from "../general/FileUploadButton";
 import {ImageUploadButton} from "../images/ImageUploadButton";

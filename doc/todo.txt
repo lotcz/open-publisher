@@ -1,6 +1,4 @@
-- better article editing
-  - preview modal
-  - tabs (body/publication/history)
+- better article editing/preview modal
 - invitation email
 - wordpress plugin
 - zEngine integration

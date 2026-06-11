@@ -2,7 +2,7 @@ import {Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {NumberUtil, ObjectUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, IconButton, SaveButton} from "zavadil-react-common";
 import {useNavigator} from "../../navigator/OpAppNavigator";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
@@ -78,7 +78,7 @@ export default function ArticleDetail() {
 				setChanged(false);
 			})
 			.catch((e: Error) => userAlerts.err(e));
-	}, [id, restClient, userAlerts, session]);
+	}, [id, restClient, userAlerts, session, destinationId]);
 
 	useEffect(reload, [id]);
 
@@ -239,15 +239,17 @@ export default function ArticleDetail() {
 						</Stack>
 					</FormRow>
 					<div>
-						<FormRowControl
-							label="Nadpis"
-							type="text"
-							value={data.header}
-							onChange={(e) => {
-								data.header = e.target.value;
-								onChanged();
-							}}
-						/>
+						<FormRow label="Nadpis">
+							<Form.Control
+								size="lg"
+								type="text"
+								value={data.header}
+								onChange={(e) => {
+									data.header = e.target.value;
+									onChanged();
+								}}
+							/>
+						</FormRow>
 						{
 							StringUtil.isBlank(data.header) && <small className="error">Vložte nadpis článku</small>
 						}

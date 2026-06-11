@@ -58,8 +58,8 @@ export default function DestinationArticlesList({destinationId}: DestinationArti
 	return (
 		<div>
 			<div className="pt-2 d-flex gap-2 align-items-center">
-				<Button variant="primary" size="sm" onClick={() => navigator.articles.add(destinationId)}>
-					+ Vložit
+				<Button variant="success" onClick={() => navigator.articles.add(destinationId)}>
+					+ Přidat článek
 				</Button>
 				<div style={{width: "250px"}}>
 					<Form onSubmit={applySearch}>
@@ -73,7 +73,7 @@ export default function DestinationArticlesList({destinationId}: DestinationArti
 						/>
 					</Form>
 				</div>
-				<Button onClick={applySearch} size="sm">Hledat</Button>
+				<Button onClick={applySearch}>Hledat</Button>
 			</div>
 			<div className="pt-2">
 				<TableWithSelect

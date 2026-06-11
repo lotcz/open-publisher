@@ -101,12 +101,16 @@ public class ArticlesService {
 		// SAVE
 		ArticleState oldState = updating ? existing.getArticleState() : null;
 		String oldImage = updating ? existing.getImageName() : null;
+		String oldHeader = updating ? existing.getHeader() : null;
+		String oldContent = updating ? existing.getContentHtml() : null;
+		Integer oldDestination = updating ? existing.getDestinationId() : null;
 		ArticleStub saved = this.stubRepository.save(article);
 
 		// UPDATE HISTORY
 
 		if (updating) {
-			this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.Edit, JsonUtils.toJson(saved));
+			if (!(StringUtils.safeEquals(oldContent, article.getContentHtml()) && StringUtils.safeEquals(oldHeader, article.getHeader()) && IntegerUtils.safeEquals(oldDestination, article.getDestinationId())))
+				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.Edit, JsonUtils.toJson(saved));
 			if (saved.getArticleState() != oldState)
 				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.ChangeState, saved.getArticleState().toString());
 			if (!StringUtils.safeEquals(saved.getImageName(), oldImage)) {
