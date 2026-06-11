@@ -1,5 +1,6 @@
 import {EntityBase} from "zavadil-ts-common";
 import {User} from "./User";
+import {Destination} from "./Destination";
 
 export type ArticleBase = EntityBase & {
 	articleState: string;
@@ -12,12 +13,14 @@ export type ArticleBase = EntityBase & {
 
 export type Article = ArticleBase & {
 	owner: User;
-	partner: User;
+	partner?: User | null;
+	destination: Destination;
 }
 
 export type ArticleStub = ArticleBase & {
 	ownerId: number;
 	partnerId?: number | null;
+	destinationId?: number | null;
 }
 
 export type ArticleImage = EntityBase & {

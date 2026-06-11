@@ -1,7 +1,7 @@
-import {Button, Form, Spinner, Stack} from "react-bootstrap";
-import {useParams} from "react-router";
+import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
+import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
-import {NumberUtil} from "zavadil-ts-common";
+import {NumberUtil, StringUtil} from "zavadil-ts-common";
 import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
@@ -12,11 +12,17 @@ import RefreshIconButton from "../../general/RefreshIconButton";
 import UserRoleSelect from "./UserRoleSelect";
 import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogContext";
 import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
+import UserArticlesList from "./UserArticlesList";
+
+const TAB_PARAM_NAME = "zalozka";
+const DEFAULT_TAB = "clanky";
 
 export default function UserDetail() {
 	const {id} = useParams();
 	const navigator = useNavigator();
 	const restClient = useRestClient();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [activeTab, setActiveTab] = useState<string>();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
 	const changePasswordDialog = useContext(ChangePasswordDialogContext);
@@ -25,6 +31,16 @@ export default function UserDetail() {
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (!activeTab) return;
+		searchParams.set(TAB_PARAM_NAME, activeTab);
+		setSearchParams(searchParams, {replace: true});
+	}, [activeTab]);
+
+	useEffect(() => {
+		setActiveTab(StringUtil.getNonEmpty(searchParams.get(TAB_PARAM_NAME), DEFAULT_TAB));
+	}, [id]);
 
 	const onChanged = useCallback(() => {
 		if (!data) return;
@@ -35,8 +51,8 @@ export default function UserDetail() {
 	const reload = useCallback(() => {
 		if (!id) {
 			setData({
+				name: "",
 				email: "",
-				syncState: "Pending",
 				userRole: "Guest",
 				isActive: true
 			});
@@ -173,6 +189,18 @@ export default function UserDetail() {
 
 				</Stack>
 			</Form>
+			{
+				data.id && (
+					<div className="mt-2">
+						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
+							<Tab title="Články" eventKey="clanky"/>
+						</Tabs>
+						<div className="px-3 py-1">
+							{activeTab === "clanky" && <UserArticlesList userId={data.id}/>}
+						</div>
+					</div>
+				)
+			}
 		</div>
 	);
 }

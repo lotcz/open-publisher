@@ -67,6 +67,9 @@ export default function DestinationsList() {
 			<div className="pt-2 ps-3">
 				<Stack direction="horizontal" gap={2}>
 					<RefreshIconButton onClick={reload}/>
+					<Button onClick={() => navigator.admin.destinations.add()} className="text-nowrap">
+						+ Nový web
+					</Button>
 					<div style={{width: "250px"}}>
 						<Form onSubmit={applySearch}>
 							<TextInputWithReset

@@ -2,6 +2,7 @@ package eu.zavadil.openpublisher.data.article;
 
 public enum ArticleState {
 	Draft,
-	Published,
+	Ready,
+	Approved,
 	Hidden
 }

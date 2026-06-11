@@ -11,11 +11,12 @@ export default function ArticleStateBadge({state}: ArticleStateBadgeProps) {
 	const variant: Variant = useMemo(
 		() => {
 			if (state === 'Hidden') return 'secondary';
-			if (state === 'Published') return 'success';
+			if (state === 'Ready') return 'info';
+			if (state === 'Approved') return 'success';
 			return 'primary';
 		},
 		[state]
 	);
 
-	return <Badge bg={variant}><Localize text={state}/></Badge>
+	return <Badge className={`bg-${variant} text-bg-${variant}`}><Localize text={state}/></Badge>
 }

@@ -72,7 +72,7 @@ export default function UsersList() {
 				<Stack direction="horizontal" gap={2}>
 					<RefreshIconButton onClick={reload}/>
 					<Button onClick={() => navigator.admin.users.add()} className="text-nowrap">
-						+ Nový
+						+ Nový uživatel
 					</Button>
 					<div style={{width: "250px"}}>
 						<Form onSubmit={applySearch}>

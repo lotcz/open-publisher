@@ -17,11 +17,11 @@ const HEADER: SelectableTableHeader<Article> = [
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 10, sorting: [{name: "lastUpdatedOn", desc: true}]};
 
-export type DestinationArticlesListProps = {
-	destinationId: number;
+export type UserArticlesListProps = {
+	userId: number;
 };
 
-export default function DestinationArticlesList({destinationId}: DestinationArticlesListProps) {
+export default function UserArticlesList({userId}: UserArticlesListProps) {
 	const navigator = useNavigator();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
@@ -32,15 +32,15 @@ export default function DestinationArticlesList({destinationId}: DestinationArti
 	const load = useCallback(() => {
 		restClient
 			.articles
-			.loadByDestination(destinationId, paging)
+			.loadByUser(userId, paging)
 			.then(setData)
 			.catch((e: Error) => {
 				setData(undefined);
 				userAlerts.err(e);
 			});
-	}, [destinationId, paging, restClient, userAlerts]);
+	}, [userId, paging, restClient, userAlerts]);
 
-	useEffect(load, [destinationId, paging]);
+	useEffect(load, [userId, paging]);
 
 	const applySearch = useCallback(
 		(e: FormEvent) => {
@@ -57,7 +57,7 @@ export default function DestinationArticlesList({destinationId}: DestinationArti
 	return (
 		<div>
 			<div className="pt-2 d-flex gap-2 align-items-center">
-				<Button variant="primary" size="sm" onClick={() => navigator.articles.add(destinationId)}>
+				<Button variant="primary" size="sm" onClick={() => navigator.articles.add(userId)}>
 					+ Vložit
 				</Button>
 				<div style={{width: "250px"}}>

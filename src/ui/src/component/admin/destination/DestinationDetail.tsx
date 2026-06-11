@@ -12,17 +12,17 @@ import BackIconLink from "../../general/BackIconLink";
 import RefreshIconButton from "../../general/RefreshIconButton";
 import DestinationPreview from "./DestinationPreview";
 
-const TAB_PARAM_NAME = "tab";
-const DEFAULT_TAB = "articles";
+const TAB_PARAM_NAME = "zalozka";
+const DEFAULT_TAB = "clanky";
 
 export default function DestinationDetail() {
 	const {id} = useParams();
 	const navigator = useNavigator();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [activeTab, setActiveTab] = useState<string>();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
-	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<Destination>();
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
@@ -49,6 +49,7 @@ export default function DestinationDetail() {
 		if (!id) {
 			setData({
 				name: "",
+				isActive: true,
 				headerLevel: 2,
 				previewWidthPx: 1000,
 				previewBgColor: "#ffffff",
@@ -208,10 +209,10 @@ export default function DestinationDetail() {
 				data.id && (
 					<div className="mt-2">
 						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
-							<Tab title="Články" eventKey="articles"/>
+							<Tab title="Články" eventKey="clanky"/>
 						</Tabs>
 						<div className="px-3 py-1">
-							{activeTab === "article" && <DestinationArticlesList destinationId={data.id}/>}
+							{activeTab === "clanky" && <DestinationArticlesList destinationId={data.id}/>}
 						</div>
 					</div>
 				)

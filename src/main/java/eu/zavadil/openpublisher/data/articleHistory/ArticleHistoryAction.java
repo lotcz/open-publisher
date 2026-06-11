@@ -5,6 +5,7 @@ public enum ArticleHistoryAction {
 	Edit,
 	GrantAccess,
 	RevokeAccess,
+	ChangeState,
 	AddImage,
 	RemoveImage
 }

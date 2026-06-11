@@ -2,7 +2,7 @@ package eu.zavadil.openpublisher.data.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import eu.zavadil.java.spring.common.entity.EntityBase;
+import eu.zavadil.java.spring.common.entity.EntityWithNameBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,7 +16,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @Data
 @Entity
 @Table(name = "usr")
-public class User extends EntityBase {
+public class User extends EntityWithNameBase {
 
 	@JdbcType(PostgreSQLEnumJdbcType.class)
 	private UserRole userRole = UserRole.Guest;
@@ -24,7 +24,7 @@ public class User extends EntityBase {
 	private String email;
 
 	@JsonProperty(value = "isActive")
-	private boolean isActive;
+	private boolean active;
 
 	static final int ALGORITHM_LENGTH = 10;
 

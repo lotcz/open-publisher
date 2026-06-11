@@ -2,7 +2,6 @@ package eu.zavadil.openpublisher.data.article;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,4 +17,7 @@ public class ArticleStub extends ArticleBase {
 
 	@Column(name = "partner_id")
 	private Integer partnerId;
+
+	@Column(name = "destination_id")
+	private Integer destinationId;
 }

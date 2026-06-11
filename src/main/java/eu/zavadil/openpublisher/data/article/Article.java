@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.data.article;
 
+import eu.zavadil.openpublisher.data.destination.Destination;
 import eu.zavadil.openpublisher.data.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -19,4 +20,6 @@ public class Article extends ArticleBase {
 	@ManyToOne(optional = true)
 	private User partner;
 
+	@ManyToOne(optional = false)
+	private Destination destination;
 }

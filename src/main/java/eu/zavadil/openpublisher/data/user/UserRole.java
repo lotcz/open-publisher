@@ -4,22 +4,30 @@ import lombok.Getter;
 
 @Getter
 public enum UserRole {
-	Guest(UserRole.GUEST_ROLE_NAME, "guest/*"),
-	Editor(UserRole.EDITOR_ROLE_NAME, "editor/*"),
-	Admin(UserRole.ADMIN_ROLE_NAME, "*");
+	Superuser(UserRole.SUPERUSER_ROLE_NAME, true),
+	Admin(UserRole.ADMIN_ROLE_NAME, true),
+	Editor(UserRole.EDITOR_ROLE_NAME),
+	Guest(UserRole.GUEST_ROLE_NAME);
 
-	public static final String GUEST_ROLE_NAME = "ROLE_GUEST";
-
-	public static final String EDITOR_ROLE_NAME = "ROLE_EDITOR";
+	public static final String SUPERUSER_ROLE_NAME = "ROLE_SUPERUSER";
 
 	public static final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
 
+	public static final String EDITOR_ROLE_NAME = "ROLE_EDITOR";
+
+	public static final String GUEST_ROLE_NAME = "ROLE_GUEST";
+
 	private final String authorityName;
 
-	private final String permission;
+	private final boolean accessAllArticles;
 
-	UserRole(String authorityName, String permission) {
+	UserRole(String authorityName, boolean canAccessAllArticles) {
 		this.authorityName = authorityName;
-		this.permission = permission;
+		this.accessAllArticles = canAccessAllArticles;
 	}
+
+	UserRole(String authorityName) {
+		this(authorityName, false);
+	}
+
 }

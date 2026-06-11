@@ -37,8 +37,9 @@ public class UsersService {
 				log.info("Creating default superuser {}", this.superUserEmail);
 				superuser = new User();
 				superuser.setEmail(this.superUserEmail);
+				superuser.setName(this.superUserEmail);
 				superuser.setActive(true);
-				superuser.setUserRole(UserRole.Admin);
+				superuser.setUserRole(UserRole.Superuser);
 				this.save(superuser);
 			} else {
 				log.info("Default superuser {} found", this.superUserEmail);

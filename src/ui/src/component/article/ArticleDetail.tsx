@@ -1,26 +1,22 @@
-import {Button, Form, Spinner, Stack} from "react-bootstrap";
+import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DateTimeInput, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRowControl, SaveButton} from "zavadil-react-common";
 import {useNavigator} from "../../navigator/OpAppNavigator";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import {ArticleStub} from "../../types/Article";
 import BackIconLink from "../general/BackIconLink";
 import RefreshIconButton from "../general/RefreshIconButton";
-import TinyMceInput from "../general/TinyMceInput";
 import {useUserSession} from "../../util/UserSession";
-import ArticleStateBadge from "./ArticleStateBadge";
-import {ArticleImage} from "../images/ArticleImage";
-import {FileUploadButton} from "../general/FileUploadButton";
-import {ImageUploadButton} from "../images/ImageUploadButton";
 import {WaitingDialogContext} from "../../util/WaitingDialogContext";
-import UserPreview from "../admin/user/UserPreview";
 import {GrantGuestAccessDialogContext} from "../../util/GrantGuestAccessDialogContext";
+import ArticleDetailContentTab from "./ArticleDetailContentTab";
+import ArticleDetailPublishingTab from "./ArticleDetailPublishingTab";
 
 const TAB_PARAM_NAME = "tab";
-const DEFAULT_TAB = "images";
+const DEFAULT_TAB = "obsah";
 
 export default function ArticleDetail() {
 	const {id} = useParams();
@@ -163,155 +159,16 @@ export default function ArticleDetail() {
 						/>
 					</div>
 
-					<FormRow label="Stav publikace">
-						<Stack direction="horizontal" gap={2}>
-							<ArticleStateBadge state={data.articleState}/>
-							{
-								data.articleState === 'Draft' && <>
-									<div>Článek není zatím publikován.</div>
-									<Button
-										variant="success"
-										size="sm"
-										onClick={() => {
-											data.articleState = 'Published';
-											onChanged();
-										}}>Publikovat</Button>
-								</>
-							}
-							{
-								data.articleState === 'Published' && <>
-									<div>Článek je publikován.</div>
-									<Button
-										variant="secondary"
-										size="sm"
-										onClick={() => {
-											data.articleState = 'Hidden';
-											onChanged();
-										}}>Skrýt</Button>
-								</>
-							}
-							{
-								data.articleState === 'Hidden' && <>
-									<div>Článek je skrytý.</div>
-									<Button
-										variant="success"
-										size="sm"
-										onClick={() => {
-											data.articleState = 'Published';
-											onChanged();
-										}}>Publikovat</Button>
-								</>
-							}
-						</Stack>
-					</FormRow>
-
-					<FormRow label="Odložená publikace">
-						<div className="float-start">
-							<Stack direction="horizontal" gap={2}>
-								<DateTimeInput
-									value={data.publishDate}
-									onChange={(d) => {
-										data.publishDate = d || null;
-										onChanged();
-									}}
-								/>
-								{
-									data.publishDate && <IconButton
-										variant="warning"
-										onClick={() => {
-											data.publishDate = null;
-											onChanged();
-										}}
-									>Vynulovat</IconButton>
-								}
-							</Stack>
+					<div>
+						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
+							<Tab title="Obsah" eventKey="obsah"/>
+							<Tab title="Publikace" eventKey="publikace"/>
+						</Tabs>
+						<div className="px-3 py-1">
+							{activeTab === "obsah" && <ArticleDetailContentTab article={data} onChanged={onChanged}/>}
+							{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
 						</div>
-					</FormRow>
-
-					<FormRow label="Vlastník">
-						<div style={{maxWidth: 900}}>
-							<UserPreview userId={data.ownerId}/>
-						</div>
-					</FormRow>
-
-					{
-						data.partnerId && <FormRow label="Partner">
-							<div style={{maxWidth: 900}}>
-								<UserPreview userId={data.partnerId}/>
-							</div>
-						</FormRow>
-					}
-
-					<FormRow label="Hlavní obrázek">
-						<div className="float-start">
-							<Stack gap={2}>
-								{
-									data.imageName && <ArticleImage size="thumb" name={data.imageName}/>
-								}
-								<Stack direction="horizontal" gap={2}>
-									<ImageUploadButton
-										label="Nahrát..."
-										onSelected={(d) => {
-											data.imageName = d || null;
-											onChanged();
-										}}
-									/>
-									{
-										data.imageName && <IconButton
-											size="sm"
-											variant="warning"
-											onClick={() => {
-												data.imageName = null;
-												onChanged();
-											}}
-										>Odstranit obrázek</IconButton>
-									}
-								</Stack>
-							</Stack>
-						</div>
-					</FormRow>
-
-					<FormRow label="Text článku">
-						<div style={{maxWidth: 900}}>
-							{
-								importing || <TinyMceInput
-									initialValue={StringUtil.getNonEmpty(data.contentHtml)}
-									onChange={(e) => {
-										data.contentHtml = e;
-										onChanged();
-									}}
-								/>
-							}
-						</div>
-					</FormRow>
-
-					<FormRow label="Import z formátu .docx">
-						<FileUploadButton
-							label="Nahrát..."
-							accept=".docx"
-							onSelected={
-								(file) => {
-									waitingDialog.show("Importuji docx...");
-									setImporting(true);
-									restClient.articles
-										.importDocx(file)
-										.then(
-											(imported) => {
-												data.header = imported.title;
-												data.contentHtml = imported.contentHtml;
-												onChanged();
-											}
-										)
-										.catch((e) => userAlerts.err(e))
-										.finally(() => {
-											setImporting(false);
-											waitingDialog.hide();
-										});
-								}
-							}
-						/>
-					</FormRow>
-
+					</div>
 				</Stack>
 			</Form>
 		</div>

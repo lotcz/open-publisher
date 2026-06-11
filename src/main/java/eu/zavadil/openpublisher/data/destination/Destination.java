@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.data.destination;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.zavadil.java.spring.common.entity.EntityWithNameBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,9 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "destination")
 public class Destination extends EntityWithNameBase {
+
+	@JsonProperty(value = "isActive")
+	private boolean active;
 
 	private int headerLevel = 2;
 

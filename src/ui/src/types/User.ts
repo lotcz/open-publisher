@@ -1,10 +1,8 @@
-import {EntityBase} from "zavadil-ts-common";
+import {EntityWithName} from "zavadil-ts-common";
 
-export type User = EntityBase & {
-	syncState: string;
+export type User = EntityWithName & {
 	userRole: string;
 	email: string;
-	oauthSubject?: string | null;
 	isActive: boolean;
 }
 
