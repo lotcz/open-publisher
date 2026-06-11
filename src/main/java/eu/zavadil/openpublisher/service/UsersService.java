@@ -79,6 +79,9 @@ public class UsersService {
 	}
 
 	public boolean verifyPassword(User user, String password) {
+		if (StringUtils.isBlank(password)) return false;
+		if (StringUtils.isBlank(user.getPasswordHash()) || StringUtils.isBlank(user.getPasswordSalt()) || StringUtils.isBlank(user.getPasswordAlgorithm()))
+			return false;
 		String salted = String.format("%s:%s", user.getPasswordSalt(), password);
 		return HashUtils.verify(salted, user.getPasswordHash(), user.getPasswordAlgorithm());
 	}

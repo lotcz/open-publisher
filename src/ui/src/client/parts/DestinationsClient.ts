@@ -6,4 +6,8 @@ export class DestinationsClient extends EntityClient<Destination> {
 		super(client, "destinations");
 	}
 
+	loadActive(): Promise<Array<Destination>> {
+		return this.client.getJson(`${this.name}/active`);
+	}
+
 }

@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface DestinationRepository extends EntityRepository<Destination> {
 
 	@Query(
@@ -15,5 +17,11 @@ public interface DestinationRepository extends EntityRepository<Destination> {
 			"""
 	)
 	Page<Destination> search(String search, Pageable pr);
+
+	List<Destination> findAllByActive(boolean active);
+
+	default List<Destination> loadAllActive() {
+		return findAllByActive(true);
+	}
 
 }

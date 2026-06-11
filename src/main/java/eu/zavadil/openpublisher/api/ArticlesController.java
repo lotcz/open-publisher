@@ -222,6 +222,7 @@ public class ArticlesController {
 		if (partner == null) {
 			partner = new User();
 			partner.setEmail(partnerEmail);
+			partner.setName(partnerEmail);
 			partner.setUserRole(UserRole.Guest);
 		}
 

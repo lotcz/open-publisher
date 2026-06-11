@@ -33,7 +33,7 @@ export default function Header() {
 				<Dropdown>
 					<Dropdown.Toggle className="d-flex align-items-center gap-2 p-2 rounded bg-body text-body">
 						<BsPersonCircle/>
-						<div>{session.user.email}</div>
+						<div>{session.user.name}</div>
 					</Dropdown.Toggle>
 
 					<Dropdown.Menu>

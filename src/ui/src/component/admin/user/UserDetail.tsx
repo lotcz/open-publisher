@@ -1,7 +1,7 @@
 import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
-import {NumberUtil, StringUtil} from "zavadil-ts-common";
+import {EmailUtil, NumberUtil, ObjectUtil, StringUtil} from "zavadil-ts-common";
 import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
@@ -28,6 +28,7 @@ export default function UserDetail() {
 	const changePasswordDialog = useContext(ChangePasswordDialogContext);
 	const waitingDialog = useContext(WaitingDialogContext);
 	const [data, setData] = useState<User>();
+	const [valid, setValid] = useState<boolean>(false);
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
@@ -41,6 +42,10 @@ export default function UserDetail() {
 	useEffect(() => {
 		setActiveTab(StringUtil.getNonEmpty(searchParams.get(TAB_PARAM_NAME), DEFAULT_TAB));
 	}, [id]);
+
+	useEffect(() => {
+		setValid(ObjectUtil.notEmpty(data) && StringUtil.notBlank(data.name) && EmailUtil.isValidEmail(data.email));
+	}, [data]);
 
 	const onChanged = useCallback(() => {
 		if (!data) return;
@@ -70,6 +75,7 @@ export default function UserDetail() {
 
 	const saveData = useCallback(() => {
 		if (!data) return;
+		if (!valid) return;
 		const inserting = NumberUtil.isEmpty(data.id);
 		setSaving(true);
 		restClient
@@ -85,7 +91,7 @@ export default function UserDetail() {
 			})
 			.catch((e: Error) => userAlerts.err(e))
 			.finally(() => setSaving(false));
-	}, [restClient, data, userAlerts, navigator]);
+	}, [restClient, data, valid, userAlerts, navigator]);
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
@@ -132,66 +138,87 @@ export default function UserDetail() {
 	}
 
 	return (
-		<div>
-			<div className="p-2">
-				<Stack direction="horizontal" gap={2}>
-					<BackIconLink changed={changed}/>
-					<RefreshIconButton onClick={reload}/>
-					<SaveButton loading={saving} disabled={!changed} onClick={saveData}>
-						Save
-					</SaveButton>
-					{
-						data.id && <>
-							<DeleteButton loading={deleting} onClick={deleteAccount}>
-								Delete
-							</DeleteButton>
-							<Button onClick={changePassword}>
-								Změnit heslo
-							</Button>
-						</>
-					}
-				</Stack>
-			</div>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<BackIconLink changed={changed}/>
+				<RefreshIconButton onClick={reload}/>
+				<SaveButton loading={saving} disabled={!changed || !valid} onClick={saveData}>
+					Uložit
+				</SaveButton>
+				{
+					data.id && <>
+						<DeleteButton loading={deleting} onClick={deleteAccount}>
+							Smazat
+						</DeleteButton>
+						<Button onClick={changePassword}>
+							Změnit heslo
+						</Button>
+					</>
+				}
+			</Stack>
 
-			<Form className="px-3 w-75">
+			<Form>
 				<Stack direction="vertical" gap={2}>
-					<FormRowControl
-						label="Email"
-						type="email"
-						maxLength={255}
-						value={data.email}
-						onChange={(e) => {
-							data.email = e.target.value;
-							onChanged();
-						}}
-					/>
+					<div>
+						<FormRowControl
+							label="Jméno"
+							type="name"
+							minLength={1}
+							maxLength={255}
+							value={data.name}
+							onChange={(e) => {
+								data.name = e.target.value;
+								onChanged();
+							}}
+						/>
+						{
+							StringUtil.isBlank(data.name) && <small className="error">Vyplňte jméno uživatele</small>
+						}
+					</div>
+
+					<div>
+						<FormRowControl
+							label="Email"
+							type="email"
+							minLength={1}
+							maxLength={255}
+							value={data.email}
+							onChange={(e) => {
+								data.email = e.target.value;
+								onChanged();
+							}}
+						/>
+						{
+							!EmailUtil.isValidEmail(data.email) && <small className="error">Vyplňte platný email</small>
+						}
+					</div>
 
 					<FormRow label="Uživatelská role">
-						<div className="float-start">
-							<UserRoleSelect
-								state={data.userRole}
+						<Stack direction="horizontal" gap={3} className="justify-content-start align-items-center">
+							<div>
+								<UserRoleSelect
+									state={data.userRole}
+									onChange={(e) => {
+										data.userRole = e;
+										onChanged();
+									}}
+								/>
+							</div>
+							<Switch
+								label="Uživatel aktivní"
+								checked={data.isActive}
 								onChange={(e) => {
-									data.userRole = e;
+									data.isActive = e;
 									onChanged();
 								}}
 							/>
-						</div>
+						</Stack>
 					</FormRow>
-
-					<Switch
-						label="Aktivní"
-						checked={data.isActive}
-						onChange={(e) => {
-							data.isActive = e;
-							onChanged();
-						}}
-					/>
-
 				</Stack>
 			</Form>
 			{
 				data.id && (
-					<div className="mt-2">
+					<div>
 						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
 							<Tab title="Články" eventKey="clanky"/>
 						</Tabs>
@@ -201,6 +228,6 @@ export default function UserDetail() {
 					</div>
 				)
 			}
-		</div>
+		</Stack>
 	);
 }

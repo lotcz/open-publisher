@@ -1,9 +1,9 @@
-import {Button, Form, Stack} from "react-bootstrap";
+import {Form, Stack} from "react-bootstrap";
 import {DateTimeInput, FormRow, IconButton} from "zavadil-react-common";
 import {ArticleStub} from "../../types/Article";
 import UserPreview from "../admin/user/UserPreview";
-import ArticleStateBadge from "./ArticleStateBadge";
 import DestinationIdSelect from "../admin/destination/DestinationIdSelect";
+import {NumberUtil} from "zavadil-ts-common";
 
 export type ArticleDetailPublishingTabTabProps = {
 	article: ArticleStub;
@@ -27,49 +27,10 @@ export default function ArticleDetailPublishingTab({article, onChanged}: Article
 									}
 								}
 							/>
+							{
+								NumberUtil.isEmpty(article.destinationId) && <small className="error">Zvolte cílový web</small>
+							}
 						</div>
-					</FormRow>
-
-					<FormRow label="Stav publikace">
-						<Stack direction="horizontal" gap={2}>
-							<ArticleStateBadge state={article.articleState}/>
-							{
-								article.articleState === 'Draft' && <>
-									<div>Článek není zatím publikován.</div>
-									<Button
-										variant="success"
-										size="sm"
-										onClick={() => {
-											article.articleState = 'Published';
-											onChanged();
-										}}>Publikovat</Button>
-								</>
-							}
-							{
-								article.articleState === 'Published' && <>
-									<div>Článek je publikován.</div>
-									<Button
-										variant="secondary"
-										size="sm"
-										onClick={() => {
-											article.articleState = 'Hidden';
-											onChanged();
-										}}>Skrýt</Button>
-								</>
-							}
-							{
-								article.articleState === 'Hidden' && <>
-									<div>Článek je skrytý.</div>
-									<Button
-										variant="success"
-										size="sm"
-										onClick={() => {
-											article.articleState = 'Published';
-											onChanged();
-										}}>Publikovat</Button>
-								</>
-							}
-						</Stack>
 					</FormRow>
 
 					<FormRow label="Odložená publikace">

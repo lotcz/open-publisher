@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DestinationsService {
 
@@ -15,6 +17,10 @@ public class DestinationsService {
 
 	public Page<Destination> search(int page, int size, String search, String sorting) {
 		return this.repository.search(search, PagingUtils.of(page, size, sorting));
+	}
+
+	public List<Destination> loadAllActive() {
+		return this.repository.loadAllActive();
 	}
 
 	public Destination loadById(int id) {

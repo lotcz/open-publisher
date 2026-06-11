@@ -13,7 +13,7 @@ export default function BackIconLink({changed}: BackIconLinkProps) {
 	const navigate = useNavigate();
 
 	return <Button
-		variant="link"
+		variant="outline-secondary"
 		onClick={
 			() => {
 				if (changed) {

@@ -4,7 +4,7 @@ import {Stack} from "react-bootstrap";
 
 import UsersList from "./admin/user/UsersList";
 import UserDetail from "./admin/user/UserDetail";
-import Dashboard from "./Dashboard";
+import Dashboard from "./dashboard/Dashboard";
 import DestinationsList from "./admin/destination/DestinationsList";
 import DestinationDetail from "./admin/destination/DestinationDetail";
 import ArticlesList from "./article/ArticlesList";
@@ -13,8 +13,8 @@ import NotFoundPage from "./NotFoundPage";
 
 export default function Main() {
 	return (
-		<main className="pb-3">
-			<Stack direction="horizontal" className="align-items-start">
+		<main className="p-2">
+			<Stack direction="horizontal" className="align-items-start" gap={3}>
 				<MainMenu/>
 				<div className="flex-grow-1 pb-4">
 					<Routes>
@@ -24,6 +24,7 @@ export default function Main() {
 							<Route path="" element={<ArticlesList/>}/>
 							<Route path="detail">
 								<Route path="vlozit" element={<ArticleDetail/>}/>
+								<Route path="vlozit/:destinationId" element={<ArticleDetail/>}/>
 								<Route path=":id" element={<ArticleDetail/>}/>
 							</Route>
 							<Route path=":pagingString" element={<ArticlesList/>}/>

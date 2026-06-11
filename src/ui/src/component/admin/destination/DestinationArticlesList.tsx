@@ -1,18 +1,19 @@
 import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
-import {DateTime, SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
+import {SelectableTableHeader, TablePlaceholder, TableWithSelect, TextInputWithReset} from "zavadil-react-common";
 import {Button, Form} from "react-bootstrap";
 import {Page, PagingRequest} from "zavadil-ts-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import {Article} from "../../../types/Article";
+import {DateTimeCs} from "../../general/DateTimeCs";
 
 const HEADER: SelectableTableHeader<Article> = [
 	{name: "header", label: "Nadpis"},
 	{name: "owner.email", label: "Vlastník"},
 	{name: "partner.email", label: "Partner"},
-	{name: "lastUpdatedOn", label: "Upraven", renderer: (p) => <DateTime value={p.lastUpdatedOn}/>},
-	{name: "createdOn", label: "Vytvořen", renderer: (p) => <DateTime value={p.createdOn}/>},
+	{name: "lastUpdatedOn", label: "Upraven", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
+	{name: "createdOn", label: "Vytvořen", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
 ];
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 10, sorting: [{name: "lastUpdatedOn", desc: true}]};

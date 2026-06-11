@@ -14,8 +14,9 @@ import {useUserSession} from "../../util/UserSession";
 
 const HEADER: SelectableTableHeader<Article> = [
 	{name: "header", label: "Nadpis"},
-	{name: "owner.email", label: "Autor"},
-	{name: "partner.email", label: "Partner"},
+	{name: "destination.name", label: "Web"},
+	{name: "owner.name", label: "Autor"},
+	{name: "partner.name", label: "Partner"},
 	{name: "articleState", label: "Stav publikace", renderer: (a) => <ArticleStateBadge state={a.articleState}/>},
 	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
 	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>}
@@ -67,33 +68,31 @@ export default function ArticlesList() {
 	}, [loadPageHandler]);
 
 	return (
-		<div>
-			<div className="pt-2 ps-3">
-				<Stack direction="horizontal" gap={2}>
-					<RefreshIconButton onClick={reload}/>
-					{
-						userSession.user.userRole !== 'Guest' &&
-						<Button onClick={() => navigator.articles.add()} className="text-nowrap">
-							+ Nový článek
-						</Button>
-					}
-					<div style={{width: "250px"}}>
-						<Form onSubmit={applySearch}>
-							<TextInputWithReset
-								value={searchInput}
-								onChange={setSearchInput}
-								onReset={() => {
-									setSearchInput("");
-									navigator.articles.list(DEFAULT_PAGING);
-								}}
-							/>
-						</Form>
-					</div>
-					<Button onClick={applySearch}>Hledat</Button>
-				</Stack>
-			</div>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<RefreshIconButton onClick={reload}/>
+				{
+					userSession.user.userRole !== 'Guest' &&
+					<Button onClick={() => navigator.articles.add()} className="text-nowrap" variant="success">
+						+ Nový článek
+					</Button>
+				}
+				<div style={{width: "250px"}}>
+					<Form onSubmit={applySearch}>
+						<TextInputWithReset
+							value={searchInput}
+							onChange={setSearchInput}
+							onReset={() => {
+								setSearchInput("");
+								navigator.articles.list(DEFAULT_PAGING);
+							}}
+						/>
+					</Form>
+				</div>
+				<Button onClick={applySearch}>Hledat</Button>
+			</Stack>
 
-			<div className="px-3 gap-3">
+			<div>
 				{data === null ? (
 					<TablePlaceholder/>
 				) : (
@@ -110,6 +109,6 @@ export default function ArticlesList() {
 					/>
 				)}
 			</div>
-		</div>
+		</Stack>
 	);
 }

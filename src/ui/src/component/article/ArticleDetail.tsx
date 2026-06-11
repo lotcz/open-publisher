@@ -1,8 +1,8 @@
-import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
+import {Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
-import {useCallback, useContext, useEffect, useState} from "react";
-import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRowControl, SaveButton} from "zavadil-react-common";
+import {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import {NumberUtil, ObjectUtil, StringUtil} from "zavadil-ts-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton} from "zavadil-react-common";
 import {useNavigator} from "../../navigator/OpAppNavigator";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
@@ -10,30 +10,31 @@ import {ArticleStub} from "../../types/Article";
 import BackIconLink from "../general/BackIconLink";
 import RefreshIconButton from "../general/RefreshIconButton";
 import {useUserSession} from "../../util/UserSession";
-import {WaitingDialogContext} from "../../util/WaitingDialogContext";
 import {GrantGuestAccessDialogContext} from "../../util/GrantGuestAccessDialogContext";
 import ArticleDetailContentTab from "./ArticleDetailContentTab";
 import ArticleDetailPublishingTab from "./ArticleDetailPublishingTab";
+import ArticleStateBadge from "./ArticleStateBadge";
+import {BsCheck, BsEyeSlash, BsFileArrowDown, BsPersonAdd} from "react-icons/bs";
 
 const TAB_PARAM_NAME = "tab";
 const DEFAULT_TAB = "obsah";
 
 export default function ArticleDetail() {
-	const {id} = useParams();
+	const {id, destinationId} = useParams();
 	const navigator = useNavigator();
 	const session = useUserSession();
+	const canApproveArticles = useMemo<boolean>(() => session.user.userRole === 'Admin' || session.user.userRole === 'Superuser', [session]);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
-	const waitingDialog = useContext(WaitingDialogContext);
 	const grantGuestAccessDialog = useContext(GrantGuestAccessDialogContext);
 	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<ArticleStub>();
+	const [valid, setValid] = useState<boolean>(false);
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
-	const [importing, setImporting] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (!activeTab) return;
@@ -44,6 +45,10 @@ export default function ArticleDetail() {
 	useEffect(() => {
 		setActiveTab(StringUtil.getNonEmpty(searchParams.get(TAB_PARAM_NAME), DEFAULT_TAB));
 	}, [id]);
+
+	useEffect(() => {
+		setValid(ObjectUtil.notEmpty(data) && StringUtil.notBlank(data.header) && NumberUtil.notEmpty(data.destinationId));
+	}, [data]);
 
 	const onChanged = useCallback(() => {
 		if (!data) return;
@@ -59,14 +64,18 @@ export default function ArticleDetail() {
 				contentHtml: '',
 				previewText: '',
 				publishDate: null,
-				ownerId: Number(session.user.id)
+				ownerId: Number(session.user.id),
+				destinationId: StringUtil.notBlank(destinationId) ? Number(destinationId) : null
 			});
 			return;
 		}
 		setData(undefined);
 		restClient.articles
 			.loadSingleStub(Number(id))
-			.then(setData)
+			.then((d) => {
+				setData(d);
+				setChanged(false);
+			})
 			.catch((e: Error) => userAlerts.err(e));
 	}, [id, restClient, userAlerts, session]);
 
@@ -74,6 +83,7 @@ export default function ArticleDetail() {
 
 	const saveData = useCallback(() => {
 		if (!data) return;
+		if (!valid) return;
 		const inserting = NumberUtil.isEmpty(data.id);
 		setSaving(true);
 		restClient
@@ -89,7 +99,7 @@ export default function ArticleDetail() {
 			})
 			.catch((e: Error) => userAlerts.err(e))
 			.finally(() => setSaving(false));
-	}, [restClient, data, userAlerts, navigator]);
+	}, [restClient, data, userAlerts, navigator, valid]);
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
@@ -111,43 +121,123 @@ export default function ArticleDetail() {
 	}
 
 	return (
-		<div>
-			<div className="p-2">
-				<Stack direction="horizontal" gap={2}>
-					<BackIconLink changed={changed}/>
-					<RefreshIconButton onClick={reload}/>
-					<SaveButton loading={saving} disabled={StringUtil.isBlank(data.header) || !changed} onClick={saveData}>
-						Uložit
-					</SaveButton>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<BackIconLink changed={changed}/>
+				<RefreshIconButton onClick={reload}/>
+				<SaveButton loading={saving} disabled={!valid || !changed} onClick={saveData}>
+					Uložit
+				</SaveButton>
+				{
+					(data.articleState === 'Draft' && !canApproveArticles) && <>
+						<IconButton
+							icon={<BsCheck/>}
+							variant="success"
+							disabled={!valid}
+							onClick={() => {
+								confirmDialog.confirm(
+									'Odeslat ke schválení?',
+									'Opravdu si přejete odeslat článek ke schválení?',
+									() => {
+										data.articleState = 'Ready';
+										saveData();
+									}
+								);
+							}}>Odeslat ke schválení</IconButton>
+					</>
+				}
+				{
+					(canApproveArticles && data.articleState !== 'Hidden') && <>
+						<IconButton
+							icon={<BsEyeSlash/>}
+							variant="secondary"
+							disabled={!valid}
+							onClick={() => {
+								confirmDialog.confirm(
+									'Skrýt článkek?',
+									'Opravdu si přejete skrýt článek? Článek bude odebrán z webu, pokud již byl publikován.',
+									() => {
+										data.articleState = 'Hidden';
+										saveData();
+									}
+								);
+							}}>Skrýt</IconButton>
+					</>
+				}
+				{
+					(canApproveArticles && (data.articleState === 'Draft' || data.articleState === 'Ready')) && <>
+						<IconButton
+							icon={<BsCheck/>}
+							variant="success"
+							disabled={!valid}
+							onClick={() => {
+								confirmDialog.confirm(
+									'Schválit k publikaci?',
+									'Opravdu si přejete schválit článek k publikaci?',
+									() => {
+										data.articleState = 'Approved';
+										saveData();
+									}
+								);
+							}}>Schválit a publikovat</IconButton>
+					</>
+				}
+				{
+					(canApproveArticles && data.articleState !== 'Draft') && <>
+						<IconButton
+							icon={<BsFileArrowDown/>}
+							variant="primary"
+							disabled={!valid}
+							onClick={() => {
+								confirmDialog.confirm(
+									'Zpět do konceptu?',
+									'Opravdu si přejete vrátit článek do konceptu? Článek bude odebrán z webu, pokud již byl publikován.',
+									() => {
+										data.articleState = 'Draft';
+										saveData();
+									}
+								);
+							}}>Vrátit do konceptu</IconButton>
+					</>
+				}
+				{
+					canApproveArticles && <IconButton
+						icon={<BsPersonAdd/>}
+						variant="warning"
+						disabled={changed || !data.id}
+						onClick={
+							() => {
+								if (!data.id) return;
+								grantGuestAccessDialog.show(
+									{
+										articleId: data.id,
+										onClose: () => grantGuestAccessDialog.hide(),
+										onConfirm: (url: string) => {
+											grantGuestAccessDialog.hide();
+											reload();
+										}
+									}
+								)
+							}
+						}
+					>Udělit přístup</IconButton>
+				}
+				{
+					(session.user.userRole === 'Admin' || session.user.userRole === 'Superadmin') &&
 					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
 						Smazat
 					</DeleteButton>
-					{
-						session.user.userRole !== 'Guest' && <Button
-							disabled={changed || !data.id}
-							onClick={
-								() => {
-									if (!data.id) return;
-									grantGuestAccessDialog.show(
-										{
-											articleId: data.id,
-											onClose: () => grantGuestAccessDialog.hide(),
-											onConfirm: (url: string) => {
-												grantGuestAccessDialog.hide();
-												reload();
-											}
-										}
-									)
-								}
-							}
-						>Udělit přístup</Button>
-					}
-				</Stack>
-			</div>
+				}
+			</Stack>
 
-			<Form className="px-3">
-				<Stack direction="vertical" gap={2}>
-					<div style={{maxWidth: 900}}>
+			<Form>
+				<Stack gap={2}>
+					<FormRow label="Stav publikace">
+						<Stack direction="horizontal" gap={2}>
+							<ArticleStateBadge state={data.articleState}/>
+						</Stack>
+					</FormRow>
+					<div>
 						<FormRowControl
 							label="Nadpis"
 							type="text"
@@ -157,20 +247,39 @@ export default function ArticleDetail() {
 								onChanged();
 							}}
 						/>
-					</div>
-
-					<div>
-						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
-							<Tab title="Obsah" eventKey="obsah"/>
-							<Tab title="Publikace" eventKey="publikace"/>
-						</Tabs>
-						<div className="px-3 py-1">
-							{activeTab === "obsah" && <ArticleDetailContentTab article={data} onChanged={onChanged}/>}
-							{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
-						</div>
+						{
+							StringUtil.isBlank(data.header) && <small className="error">Vložte nadpis článku</small>
+						}
 					</div>
 				</Stack>
 			</Form>
-		</div>
+
+			<div>
+				<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
+					<Tab title="Obsah" eventKey="obsah"/>
+					{
+						session.user.userRole !== 'Guest' &&
+						<Tab
+							title={
+								<div className="position-relative">
+									Publikace
+									{
+										NumberUtil.isEmpty(data.destinationId) && <span
+											className="position-absolute top-0 start-100 translate-middle p-1 bg-danger rounded-circle">
+												<span className="visually-hidden">New alerts</span>
+											  </span>
+									}
+								</div>
+							}
+							eventKey="publikace"
+						/>
+					}
+				</Tabs>
+				<div className="px-3 py-1">
+					{activeTab === "obsah" && <ArticleDetailContentTab article={data} onChanged={onChanged}/>}
+					{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
+				</div>
+			</div>
+		</Stack>
 	);
 }

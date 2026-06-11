@@ -2,7 +2,7 @@ import {Col, Form, Row, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import DestinationArticlesList from "./DestinationArticlesList";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
@@ -90,7 +90,7 @@ export default function DestinationDetail() {
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
-		confirmDialog.confirm("Smazat?", "Opravdu si přejete smazat napojení na tento web?", () => {
+		confirmDialog.confirm("Smazat?", "Opravdu si přejete smazat napojení na tento web? Všechny články webu budou smazány z Centrální publikace, na webech však zůstanou, pokud byli již publikované. ", () => {
 			setDeleting(true);
 			restClient
 				.destinations
@@ -108,22 +108,20 @@ export default function DestinationDetail() {
 	}
 
 	return (
-		<div>
-			<div className="p-2">
-				<Stack direction="horizontal" gap={2}>
-					<BackIconLink changed={changed}/>
-					<RefreshIconButton onClick={reload}/>
-					<SaveButton loading={saving} disabled={!changed} onClick={saveData}>
-						Uložit
-					</SaveButton>
-					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
-						Smazat
-					</DeleteButton>
-				</Stack>
-			</div>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<BackIconLink changed={changed}/>
+				<RefreshIconButton onClick={reload}/>
+				<SaveButton loading={saving} disabled={!changed} onClick={saveData}>
+					Uložit
+				</SaveButton>
+				<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
+					Smazat
+				</DeleteButton>
+			</Stack>
 
-			<Form className="px-3 w-75">
-				<Stack direction="vertical" gap={2}>
+			<Form>
+				<Stack gap={3}>
 					<FormRowControl
 						label="Název"
 						type="text"
@@ -133,71 +131,83 @@ export default function DestinationDetail() {
 							onChanged();
 						}}
 					/>
+					<Switch
+						label="Aktivní"
+						checked={data.isActive}
+						onChange={(e) => {
+							data.isActive = e;
+							onChanged();
+						}}
+					/>
 					<Row>
 						<Col>
-							<Stack direction="horizontal" gap={3}>
+							<Stack gap={3}>
+								<Stack direction="horizontal" gap={3}>
+									<FormRowControl
+										label="Barva pozadí"
+										type="color"
+										value={data.previewBgColor}
+										onChange={(e) => {
+											data.previewBgColor = e.target.value;
+											onChanged();
+										}}
+									/>
+									<FormRowControl
+										label="Barva textu"
+										type="color"
+										value={data.previewTextColor}
+										onChange={(e) => {
+											data.previewTextColor = e.target.value;
+											onChanged();
+										}}
+									/>
+									<FormRowControl
+										label="Barva odkazu"
+										type="color"
+										value={data.previewLinkColor}
+										onChange={(e) => {
+											data.previewLinkColor = e.target.value;
+											onChanged();
+										}}
+									/>
+								</Stack>
 								<FormRowControl
-									label="Barva pozadí"
-									type="color"
-									value={data.previewBgColor}
+									label="Typ písma"
+									type="text"
+									maxLength={255}
+									value={data.previewFontFamily}
 									onChange={(e) => {
-										data.previewBgColor = e.target.value;
+										data.previewFontFamily = e.target.value;
 										onChanged();
 									}}
 								/>
-								<FormRowControl
-									label="Barva textu"
-									type="color"
-									value={data.previewTextColor}
-									onChange={(e) => {
-										data.previewTextColor = e.target.value;
-										onChanged();
-									}}
-								/>
-								<FormRowControl
-									label="Barva odkazu"
-									type="color"
-									value={data.previewLinkColor}
-									onChange={(e) => {
-										data.previewLinkColor = e.target.value;
-										onChanged();
-									}}
-								/>
+								<div>
+									<FormRowControl
+										label="Maximální šířka stránky (px)"
+										type="number"
+										value={data.previewWidthPx}
+										onChange={(e) => {
+											data.previewFontFamily = e.target.value;
+											onChanged();
+										}}
+									/>
+									<small className="text-muted">Používá se při náhledu na celou obrazovku</small>
+								</div>
+								<FormRow label="Základní úroveň nadpisů">
+									<Form.Select
+										value={data.headerLevel}
+										onChange={(e) => {
+											data.headerLevel = Number(e.target.value);
+											onChanged();
+										}}
+									>
+										<option value={2}>h2</option>
+										<option value={3}>h3</option>
+										<option value={4}>h4</option>
+										<option value={5}>h5</option>
+									</Form.Select>
+								</FormRow>
 							</Stack>
-							<FormRowControl
-								label="Typ písma"
-								type="text"
-								maxLength={255}
-								value={data.previewFontFamily}
-								onChange={(e) => {
-									data.previewFontFamily = e.target.value;
-									onChanged();
-								}}
-							/>
-							<FormRowControl
-								label="Maximální šířka stránky (px)"
-								type="number"
-								value={data.previewWidthPx}
-								onChange={(e) => {
-									data.previewFontFamily = e.target.value;
-									onChanged();
-								}}
-							/>
-							<small className="text-muted">Používá se při náhledu na celou obrazovku</small>
-							<FormRow label="Základní úroveň nadpisů">
-								<Form.Select
-									value={data.headerLevel}
-									onChange={(e) => {
-										data.headerLevel = Number(e.target.value);
-										onChanged();
-									}}
-								>
-									<option value={2}>h2</option>
-									<option value={3}>h3</option>
-									<option value={4}>h4</option>
-									<option value={5}>h5</option>
-								</Form.Select>
-							</FormRow>
 						</Col>
 						<Col>
 							<DestinationPreview destination={data}/>
@@ -207,7 +217,7 @@ export default function DestinationDetail() {
 			</Form>
 			{
 				data.id && (
-					<div className="mt-2">
+					<div>
 						<Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(StringUtil.getNonEmpty(key, DEFAULT_TAB))}>
 							<Tab title="Články" eventKey="clanky"/>
 						</Tabs>
@@ -217,6 +227,6 @@ export default function DestinationDetail() {
 					</div>
 				)
 			}
-		</div>
+		</Stack>
 	);
 }

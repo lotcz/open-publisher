@@ -9,12 +9,14 @@ import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import RefreshIconButton from "../../general/RefreshIconButton";
 import {DateTimeCs} from "../../general/DateTimeCs";
+import ActiveInactiveBadge from "../../general/ActiveInactiveBadge";
 
 const HEADER: SelectableTableHeader<Destination> = [
 	{name: "id", label: "ID"},
 	{name: "name", label: "Název"},
-	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
-	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>}
+	{name: "isActive", label: "Aktivní", renderer: (d) => <ActiveInactiveBadge active={d.isActive}/>},
+	{name: "lastUpdatedOn", label: "Upraveno", renderer: (d) => <DateTimeCs value={d.lastUpdatedOn}/>},
+	{name: "createdOn", label: "Vytvořeno", renderer: (d) => <DateTimeCs value={d.createdOn}/>}
 ];
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 100, sorting: [{name: "lastUpdatedOn", desc: true}]};
@@ -63,30 +65,28 @@ export default function DestinationsList() {
 	}, [loadPageHandler]);
 
 	return (
-		<div>
-			<div className="pt-2 ps-3">
-				<Stack direction="horizontal" gap={2}>
-					<RefreshIconButton onClick={reload}/>
-					<Button onClick={() => navigator.admin.destinations.add()} className="text-nowrap">
-						+ Nový web
-					</Button>
-					<div style={{width: "250px"}}>
-						<Form onSubmit={applySearch}>
-							<TextInputWithReset
-								value={searchInput}
-								onChange={setSearchInput}
-								onReset={() => {
-									setSearchInput("");
-									navigator.admin.destinations.list(DEFAULT_PAGING);
-								}}
-							/>
-						</Form>
-					</div>
-					<Button onClick={applySearch}>Hledat</Button>
-				</Stack>
-			</div>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<RefreshIconButton onClick={reload}/>
+				<Button onClick={() => navigator.admin.destinations.add()} className="text-nowrap" variant="success">
+					+ Nový web
+				</Button>
+				<div style={{width: "250px"}}>
+					<Form onSubmit={applySearch}>
+						<TextInputWithReset
+							value={searchInput}
+							onChange={setSearchInput}
+							onReset={() => {
+								setSearchInput("");
+								navigator.admin.destinations.list(DEFAULT_PAGING);
+							}}
+						/>
+					</Form>
+				</div>
+				<Button onClick={applySearch}>Hledat</Button>
+			</Stack>
 
-			<div className="px-3 gap-3">
+			<div>
 				{data === null ? (
 					<TablePlaceholder/>
 				) : (
@@ -103,6 +103,6 @@ export default function DestinationsList() {
 					/>
 				)}
 			</div>
-		</div>
+		</Stack>
 	);
 }

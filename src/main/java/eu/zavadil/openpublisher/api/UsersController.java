@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.api;
 
+import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
 import eu.zavadil.openpublisher.data.user.User;
@@ -62,6 +63,14 @@ public class UsersController {
 	@PutMapping("{id}")
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public User update(@PathVariable int id, @RequestBody User document) {
+		User existing = this.usersService.loadById(id);
+		if (existing == null) throw new ResourceNotFoundException("User", id);
+
+		// preserve authentication data
+		document.setPasswordAlgorithm(existing.getPasswordAlgorithm());
+		document.setPasswordSalt(existing.getPasswordSalt());
+		document.setPasswordHash(existing.getPasswordHash());
+
 		document.setId(id);
 		return this.usersService.save(document);
 	}

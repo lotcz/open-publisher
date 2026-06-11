@@ -12,6 +12,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("${api.base-url}/destinations")
 @Tag(name = "Destinations")
@@ -30,6 +32,12 @@ public class DestinationsController {
 		@RequestParam(defaultValue = "") String sorting
 	) {
 		return JsonPageImpl.of(this.destinationsService.search(page, size, search, sorting));
+	}
+
+	@GetMapping("active")
+	@Secured({UserRole.EDITOR_ROLE_NAME})
+	public List<Destination> loadActive() {
+		return this.destinationsService.loadAllActive();
 	}
 
 	@GetMapping("{id}")

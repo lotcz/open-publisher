@@ -7,7 +7,7 @@ function MainMenu() {
 	const userSession = useUserSession();
 
 	return (
-		<div className="main-menu ps-3">
+		<div className="main-menu p-2 ps-3">
 			<h4 className="mt-2">
 				Publikace
 			</h4>

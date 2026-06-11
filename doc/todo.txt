@@ -1,10 +1,10 @@
-- better article editing
-  - tabs (body/publication/history)
-  - preview modal
+- article approval
 - grant guest access
   - validate email
-- article approval
-- show user's articles
+- better article editing
+  - preview modal
+  - tabs (body/publication/history)
+
 - invitation email
 - wordpress plugin
 - zEngine integration

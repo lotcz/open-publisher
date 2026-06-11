@@ -84,7 +84,7 @@ export class AccessTokenManager {
 					.catch(
 						(e) => {
 							this.logOut();
-							return Promise.reject('Token renew failed!');
+							return Promise.reject('Obnova tokenu selhala!');
 						}
 					);
 			}
@@ -92,7 +92,7 @@ export class AccessTokenManager {
 		}
 
 		this.logOut();
-		return Promise.reject('No valid access token!');
+		return Promise.reject('Platnost přihlášení vypršela!');
 
 	}
 

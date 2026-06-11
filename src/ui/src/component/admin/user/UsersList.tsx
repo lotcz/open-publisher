@@ -9,16 +9,15 @@ import {UserAlertsContext} from "../../../util/UserAlerts";
 import {User} from "../../../types/User";
 import RefreshIconButton from "../../general/RefreshIconButton";
 import {DateTimeCs} from "../../general/DateTimeCs";
-
+import ActiveInactiveBadge from "../../general/ActiveInactiveBadge";
 
 const HEADER: SelectableTableHeader<User> = [
-	{name: "id", label: "ID"},
+	{name: "name", label: "Jméno"},
 	{name: "email", label: "Email"},
-	{name: "userRole", label: "Role"},
-	{name: "isActive", label: "Aktivní", renderer: (u) => u.isActive ? 'Ano' : 'Ne'},
-	{name: "lastUpdatedOn", label: "Upraveno", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
-	{name: "createdOn", label: "Vytvořeno", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
-	{name: "syncState", label: "Synchronizace"},
+	{name: "userRole", label: "Uživatelská role"},
+	{name: "isActive", label: "Aktivní", renderer: (u) => <ActiveInactiveBadge active={u.isActive}/>},
+	{name: "lastUpdatedOn", label: "Upraven", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},
+	{name: "createdOn", label: "Vytvořen", renderer: (p) => <DateTimeCs value={p.createdOn}/>},
 ];
 
 const DEFAULT_PAGING: PagingRequest = {page: 0, size: 100, sorting: [{name: "lastUpdatedOn", desc: true}]};
@@ -67,30 +66,28 @@ export default function UsersList() {
 	}, [loadPageHandler]);
 
 	return (
-		<div>
-			<div className="pt-2 ps-3">
-				<Stack direction="horizontal" gap={2}>
-					<RefreshIconButton onClick={reload}/>
-					<Button onClick={() => navigator.admin.users.add()} className="text-nowrap">
-						+ Nový uživatel
-					</Button>
-					<div style={{width: "250px"}}>
-						<Form onSubmit={applySearch}>
-							<TextInputWithReset
-								value={searchInput}
-								onChange={setSearchInput}
-								onReset={() => {
-									setSearchInput("");
-									navigator.admin.users.list(DEFAULT_PAGING);
-								}}
-							/>
-						</Form>
-					</div>
-					<Button onClick={applySearch}>Hledat</Button>
-				</Stack>
-			</div>
+		<Stack gap={2}>
+			<Stack direction="horizontal" gap={2}>
+				<RefreshIconButton onClick={reload}/>
+				<Button onClick={() => navigator.admin.users.add()} className="text-nowrap" variant="success">
+					+ Nový uživatel
+				</Button>
+				<div style={{width: "250px"}}>
+					<Form onSubmit={applySearch}>
+						<TextInputWithReset
+							value={searchInput}
+							onChange={setSearchInput}
+							onReset={() => {
+								setSearchInput("");
+								navigator.admin.users.list(DEFAULT_PAGING);
+							}}
+						/>
+					</Form>
+				</div>
+				<Button onClick={applySearch}>Hledat</Button>
+			</Stack>
 
-			<div className="px-3 gap-3">
+			<div>
 				{data === null ? (
 					<TablePlaceholder/>
 				) : (
@@ -107,6 +104,6 @@ export default function UsersList() {
 					/>
 				)}
 			</div>
-		</div>
+		</Stack>
 	);
 }
