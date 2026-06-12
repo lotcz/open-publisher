@@ -42,6 +42,9 @@ public class ArticlesController {
 	@Autowired
 	ArticleHistoryService articleHistoryService;
 
+	@Autowired
+	EmailService emailService;
+
 	@GetMapping("")
 	public JsonPage<Article> loadPaged(
 		@AuthenticationPrincipal User user,
@@ -225,6 +228,12 @@ public class ArticlesController {
 			.addPath(article.getId().toString())
 			.addQuery("t", token)
 			.buildAsString();
+
+		this.emailService.sendSimpleEmail(
+			partnerEmail,
+			"Pozvánka k editaci článku",
+			String.format("Dobrý den,\n\npoužijte následující odkaz pro editaci článku: %s\n\nPublikace", url)
+		);
 
 		return url;
 	}
