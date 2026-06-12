@@ -14,7 +14,7 @@ import {GrantGuestAccessDialogContext} from "../../util/GrantGuestAccessDialogCo
 import ArticleDetailContentTab from "./ArticleDetailContentTab";
 import ArticleDetailPublishingTab from "./ArticleDetailPublishingTab";
 import ArticleStateBadge from "./ArticleStateBadge";
-import {BsCheck, BsEyeSlash, BsFileArrowDown, BsPersonAdd} from "react-icons/bs";
+import {BsCheck, BsEnvelopeAt, BsEyeSlash, BsFileArrowDown} from "react-icons/bs";
 import ArticleHistoryTab from "./ArticleHistoryTab";
 
 const TAB_PARAM_NAME = "tab";
@@ -203,7 +203,7 @@ export default function ArticleDetail() {
 				}
 				{
 					canApproveArticles && <IconButton
-						icon={<BsPersonAdd/>}
+						icon={<BsEnvelopeAt/>}
 						variant="warning"
 						disabled={changed || !data.id}
 						onClick={
@@ -221,7 +221,7 @@ export default function ArticleDetail() {
 								)
 							}
 						}
-					>Udělit přístup</IconButton>
+					>Odeslat pozvánku</IconButton>
 				}
 				{
 					(session.user.userRole === 'Admin' || session.user.userRole === 'Superuser') &&

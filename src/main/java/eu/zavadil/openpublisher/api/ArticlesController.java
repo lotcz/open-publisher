@@ -41,9 +41,6 @@ public class ArticlesController {
 	@Autowired
 	ArticleHistoryService articleHistoryService;
 
-	@Autowired
-	EmailService emailService;
-
 	@GetMapping("")
 	public JsonPage<Article> loadPaged(
 		@AuthenticationPrincipal User user,
@@ -188,16 +185,19 @@ public class ArticlesController {
 	@Autowired
 	private AccessService accessService;
 
+	@Autowired
+	EmailService emailService;
+
 	@PostMapping("{id}/grant-guest-access/{partnerEmail}")
 	@Secured({UserRole.EDITOR_ROLE_NAME})
 	public String grantGuestAccess(
-		@AuthenticationPrincipal User user,
+		@AuthenticationPrincipal User authenticatedUser,
 		@PathVariable int id,
 		@PathVariable String partnerEmail
 	) {
 		ArticleStub article = this.articlesService.loadById(id);
 		if (article == null) throw new ResourceNotFoundException("Article not found!");
-		if (!this.articlesService.canAccess(user, article))
+		if (!this.articlesService.canAccess(authenticatedUser, article))
 			throw new NotAuthorizedException("K tomuto článku nemáte právo přístupu");
 
 		User partner = this.usersService.loadByEmail(partnerEmail);
@@ -213,14 +213,14 @@ public class ArticlesController {
 
 		Integer oldPartnerId = article.getPartnerId();
 		article.setPartnerId(partner.getId());
-		this.articlesService.save(user, article);
+		this.articlesService.save(authenticatedUser, article);
 
 		if (oldPartnerId != null && !IntegerUtils.safeEquals(article.getPartnerId(), oldPartnerId)) {
 			User oldPartner = this.usersService.loadById(oldPartnerId);
-			this.articleHistoryService.save(article.getId(), user.getId(), ArticleHistoryAction.RevokeAccess, oldPartner.getEmail());
+			this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.RevokeAccess, oldPartner.getEmail());
 		}
 
-		this.articleHistoryService.save(article.getId(), user.getId(), ArticleHistoryAction.GrantAccess, partner.getEmail());
+		this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, partner.getEmail());
 
 		String token = this.accessService.createEncodedAccessToken(partner);
 		String url = UrlBuilder.of(this.urlBase)
@@ -232,7 +232,18 @@ public class ArticlesController {
 		this.emailService.sendSimpleEmail(
 			partnerEmail,
 			"Pozvánka k editaci článku",
-			String.format("Dobrý den,\n\npoužijte následující odkaz pro editaci článku: %s\n\nPublikace", url)
+			String.format(
+				"""
+					Dobrý den,
+					
+					použijte následující odkaz pro editaci článku: %s
+					
+					s pozdravem
+					%s
+					""",
+				url,
+				authenticatedUser.getName()
+			)
 		);
 
 		return url;

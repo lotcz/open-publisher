@@ -18,4 +18,8 @@ export class UsersClient extends EntityClient<User> {
 		return this.client.put(`${this.name}/${userId}/password`, password);
 	}
 
+	sendInvitationLink(userId: number): Promise<any> {
+		return this.client.post(`${this.name}/${userId}/send-invitation-link`);
+	}
+
 }

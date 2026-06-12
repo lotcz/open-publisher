@@ -2,7 +2,7 @@ import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {EmailUtil, NumberUtil, ObjectUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
+import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
@@ -14,6 +14,8 @@ import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogCon
 import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
 import UserArticlesList from "./UserArticlesList";
 import UserArticleHistory from "./UserArticleHistory";
+import {useUserSession} from "../../../util/UserSession";
+import {BsEnvelopeAt} from "react-icons/bs";
 
 const TAB_PARAM_NAME = "zalozka";
 const DEFAULT_TAB = "clanky";
@@ -22,6 +24,7 @@ export default function UserDetail() {
 	const {id} = useParams();
 	const navigator = useNavigator();
 	const restClient = useRestClient();
+	const userSession = useUserSession();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [activeTab, setActiveTab] = useState<string>();
 	const userAlerts = useContext(UserAlertsContext);
@@ -154,6 +157,27 @@ export default function UserDetail() {
 						<Button onClick={changePassword}>
 							Změnit heslo
 						</Button>
+						<IconButton
+							icon={<BsEnvelopeAt/>}
+							disabled={changed}
+							variant="warning"
+							onClick={
+								() => {
+									confirmDialog.confirm(
+										'Odeslat pozvánku',
+										`Opravdu si přejete odeslat odkaz pro přihlášení do systému uživateli ${data.email}?`,
+										() => {
+											waitingDialog.show('Probíhá odesílání pozvánky');
+											restClient.users
+												.sendInvitationLink(Number(data.id))
+												.then(() => userAlerts.info('Pozvánka byla odeslána'))
+												.catch((e) => userAlerts.err(e))
+												.finally(() => waitingDialog.hide());
+										}
+									);
+								}
+							}
+						>Odeslat pozvánku</IconButton>
 					</>
 				}
 			</Stack>

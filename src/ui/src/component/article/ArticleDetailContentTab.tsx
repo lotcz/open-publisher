@@ -26,9 +26,9 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 	const [fullScreenDialog, setFullscreenDialog] = useState<ArticleFullscreenEditDialogProps>();
 
 	return (
-		<div>
+		<div className="pt-2">
 			<Form>
-				<Stack gap={3}>
+				<Stack gap={2}>
 					<IconButton
 						icon={<BsFullscreen/>}
 						type="button"
@@ -40,8 +40,10 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 										article: article,
 										onClose: () => setFullscreenDialog(undefined),
 										onConfirmed: (edited: ArticleStub) => {
-											article.contentHtml = edited.contentHtml;
-											onChanged();
+											if (edited.contentHtml !== article.contentHtml) {
+												article.contentHtml = edited.contentHtml;
+												onChanged();
+											}
 											setFullscreenDialog(undefined);
 										}
 									}

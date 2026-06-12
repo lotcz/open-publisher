@@ -1,14 +1,18 @@
 package eu.zavadil.openpublisher.api;
 
+import eu.zavadil.java.UrlBuilder;
 import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
+import eu.zavadil.openpublisher.service.AccessService;
+import eu.zavadil.openpublisher.service.EmailService;
 import eu.zavadil.openpublisher.service.UsersService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -89,6 +93,51 @@ public class UsersController {
 		@RequestBody String password
 	) {
 		this.usersService.changeUserPassword(id, password);
+	}
+
+	/*
+		SEND INVITATION LINK
+	 */
+
+	@Value("${server.allowedOrigin}")
+	private String urlBase;
+
+	@Autowired
+	private AccessService accessService;
+
+	@Autowired
+	EmailService emailService;
+
+	@PostMapping("{id}/send-invitation-link")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
+	public String grantGuestAccess(
+		@AuthenticationPrincipal User authenticatedUser,
+		@PathVariable int id
+	) {
+		User user = this.usersService.loadById(id);
+		if (user == null) throw new ResourceNotFoundException("User", id);
+
+		String token = this.accessService.createEncodedAccessToken(user);
+		String url = UrlBuilder.of(this.urlBase).addQuery("t", token).buildAsString();
+
+		this.emailService.sendSimpleEmail(
+			user.getEmail(),
+			"Pozvánka do publikačního systému",
+			String.format(
+				"""
+					Dobrý den,
+					
+					pro přihlášení použijte následující odkaz: %s
+					
+					s pozdravem
+					%s
+					""",
+				url,
+				authenticatedUser.getEmail()
+			)
+		);
+
+		return url;
 	}
 
 }

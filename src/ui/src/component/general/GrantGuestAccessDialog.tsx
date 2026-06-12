@@ -87,7 +87,10 @@ export default function GrantGuestAccessDialog({
 						loading ? <Spinner/>
 							: (
 								url ? <div>
-										<TextToClipboard text={url} onClipboardCopy={() => userAlerts.info("Url bylo zkopírováno do schránky")}/>
+										<div>Na vložený email byla odeslána pozvánka k editaci článku.</div>
+										<div>
+											<TextToClipboard text={url} onClipboardCopy={() => userAlerts.info("Url bylo zkopírováno do schránky")}/>
+										</div>
 									</div>
 									: <div>
 										<FormRowControl

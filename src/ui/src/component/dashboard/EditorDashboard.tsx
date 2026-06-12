@@ -6,7 +6,7 @@ import {useCallback, useContext, useEffect, useState} from "react";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import {Spinner, Stack} from "react-bootstrap";
 import {IconButton} from "zavadil-react-common";
-import {BsPersonAdd, BsPlus} from "react-icons/bs";
+import {BsEnvelopeAt, BsPlus} from "react-icons/bs";
 import {useNavigator} from "../../navigator/OpAppNavigator";
 import {GrantGuestAccessDialogContext} from "../../util/GrantGuestAccessDialogContext";
 
@@ -56,7 +56,7 @@ export default function EditorDashboard() {
 									<Stack key={destination.id} gap={2}>
 										<div>
 											<IconButton
-												icon={<BsPersonAdd/>}
+												icon={<BsEnvelopeAt/>}
 												variant="warning"
 												onClick={() => inviteGuest(Number(destination.id))}
 											>
