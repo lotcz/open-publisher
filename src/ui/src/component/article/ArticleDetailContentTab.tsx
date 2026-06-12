@@ -1,6 +1,6 @@
 import {Form, Stack} from "react-bootstrap";
 import {useContext, useState} from "react";
-import {StringUtil} from "zavadil-ts-common";
+import {ObjectUtil, StringUtil} from "zavadil-ts-common";
 import {FormRow, IconButton} from "zavadil-react-common";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
@@ -10,6 +10,8 @@ import {ArticleImage} from "../images/ArticleImage";
 import {FileUploadButton} from "../general/FileUploadButton";
 import {ImageUploadButton} from "../images/ImageUploadButton";
 import {WaitingDialogContext} from "../../util/WaitingDialogContext";
+import ArticleFullscreenEditDialog, {ArticleFullscreenEditDialogProps} from "./ArticleFullscreenEditDialog";
+import {BsFullscreen} from "react-icons/bs";
 
 export type ArticleDetailContentTabProps = {
 	article: ArticleStub;
@@ -21,11 +23,34 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 	const userAlerts = useContext(UserAlertsContext);
 	const waitingDialog = useContext(WaitingDialogContext);
 	const [importing, setImporting] = useState<boolean>(false);
+	const [fullScreenDialog, setFullscreenDialog] = useState<ArticleFullscreenEditDialogProps>();
 
 	return (
 		<div>
 			<Form>
 				<Stack gap={3}>
+					<IconButton
+						icon={<BsFullscreen/>}
+						type="button"
+						variant="outline-info"
+						onClick={
+							() => {
+								setFullscreenDialog(
+									{
+										article: article,
+										onClose: () => setFullscreenDialog(undefined),
+										onConfirmed: (edited: ArticleStub) => {
+											article.contentHtml = edited.contentHtml;
+											onChanged();
+											setFullscreenDialog(undefined);
+										}
+									}
+								);
+							}
+						}
+					>
+						Otevřít editaci na celou obrazovku
+					</IconButton>
 					<FormRow label="Hlavní obrázek">
 						<div className="float-start">
 							<Stack gap={2}>
@@ -58,7 +83,7 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 					<FormRow label="Text článku">
 						<div style={{maxWidth: 900}}>
 							{
-								importing || <TinyMceInput
+								(importing || ObjectUtil.notEmpty(fullScreenDialog)) || <TinyMceInput
 									initialValue={StringUtil.getNonEmpty(article.contentHtml)}
 									onChange={(e) => {
 										article.contentHtml = e;
@@ -97,6 +122,9 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 					</FormRow>
 				</Stack>
 			</Form>
+			{
+				fullScreenDialog && <ArticleFullscreenEditDialog {...fullScreenDialog} />
+			}
 		</div>
 	);
 }

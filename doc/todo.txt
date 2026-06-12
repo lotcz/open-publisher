@@ -1,4 +1,3 @@
-- better article editing/preview modal
 - invitation email
 - wordpress plugin
 - zEngine integration

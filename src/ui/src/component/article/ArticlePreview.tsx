@@ -4,6 +4,7 @@ import ArticlePreviewUtil from "../../util/ArticlePreviewUtil";
 import {Destination} from "../../types/Destination";
 import {useRestClient} from "../../client/OpRestClient";
 import {Stack} from "react-bootstrap";
+import {StringUtil} from "zavadil-ts-common";
 
 export type ArticlePreviewProps = {
 	article: ArticleStub;
@@ -31,7 +32,7 @@ export default function ArticlePreview({article}: ArticlePreviewProps) {
 	return <Stack gap={2}>
 		<div className="article-preview p-3" style={style}>
 			<h1>{article.header}</h1>
-			<div dangerouslySetInnerHTML={{__html: String(article.contentHtml)}}/>
+			<div dangerouslySetInnerHTML={{__html: StringUtil.getNonEmpty(article.contentHtml)}}/>
 		</div>
 	</Stack>
 

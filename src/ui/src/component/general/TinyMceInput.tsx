@@ -5,10 +5,12 @@ import {useUserSession} from "../../util/UserSession";
 
 export type TinyMceInputProps = {
 	initialValue: string;
+	height?: string | number;
+	stickyToolbar?: boolean;
 	onChange: (value: string) => any;
 };
 
-export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps) {
+export default function TinyMceInput({initialValue, stickyToolbar = false, height, onChange}: TinyMceInputProps) {
 	const value = useMemo(() => initialValue, []);
 	const restClient = useRestClient();
 	const userSession = useUserSession();
@@ -34,6 +36,8 @@ export default function TinyMceInput({initialValue, onChange}: TinyMceInputProps
 			plugins: 'advlist autolink lists link image fullscreen',
 			toolbar: 'undo redo | bold italic | image | bullist numlist | fullscreen',
 			skin: userSession.theme === 'dark' ? 'oxide-dark' : undefined,
+			height: height,
+			toolbar_sticky: stickyToolbar,
 			images_upload_handler: imageUploadHandler
 		}}
 		onEditorChange={(evt, editor) => onChange(editor.getContent())}

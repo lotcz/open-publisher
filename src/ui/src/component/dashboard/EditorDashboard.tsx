@@ -30,7 +30,10 @@ export default function EditorDashboard() {
 				{
 					destinationId: destinationId,
 					onClose: () => grantGuestAccessDialog.hide(),
-					onConfirm: () => userAlerts.info("Pozvánka byla vytvořena")
+					onConfirm: () => {
+						grantGuestAccessDialog.hide();
+						userAlerts.info("Pozvánka byla vytvořena");
+					}
 				}
 			)
 		},
