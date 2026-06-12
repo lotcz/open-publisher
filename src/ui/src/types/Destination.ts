@@ -8,4 +8,6 @@ export type Destination = EntityWithName & {
 	previewTextColor: string;
 	previewLinkColor: string;
 	previewFontFamily: string;
+	apiSyncName?: string | null;
+	apiSyncLastArticleSynced?: Date | null
 }

@@ -3,9 +3,14 @@ package eu.zavadil.openpublisher.data.destination;
 import eu.zavadil.java.spring.common.entity.EntityRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface DestinationRepository extends EntityRepository<Destination> {
 
@@ -23,5 +28,19 @@ public interface DestinationRepository extends EntityRepository<Destination> {
 	default List<Destination> loadAllActive() {
 		return findAllByActive(true);
 	}
+
+	Optional<Destination> findFirstByApiSyncName(String name);
+
+	@Modifying
+	@Transactional
+	@Query("""
+			update Destination d
+			set d.apiSyncLastArticleSynced = :date
+			where d.id = :destinationId
+		""")
+	void updateArticleLastSync(
+		@Param("destinationId") int destinationId,
+		@Param("date") Instant date
+	);
 
 }

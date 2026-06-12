@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +32,7 @@ import java.util.List;
 @RequestMapping("${api.base-url}/articles")
 @Tag(name = "Articles")
 @Slf4j
-@PreAuthorize("isAuthenticated()")
+@Secured({UserRole.GUEST_ROLE_NAME})
 public class ArticlesController {
 
 	@Autowired
@@ -149,6 +148,7 @@ public class ArticlesController {
 	}
 
 	@DeleteMapping("{id}/images/{imageName}")
+	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public void deleteImage(
 		@AuthenticationPrincipal User user,
 		@PathVariable int id,

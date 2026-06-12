@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -165,5 +166,9 @@ public class ArticlesService {
 		image.setArticleId(articleId);
 		image.setImageName(health.getName());
 		return this.imageRepository.save(image);
+	}
+
+	public List<ArticleStub> loadArticlesForImport(int destinationId, Instant lastArticleUpdatedOn) {
+		return this.stubRepository.loadArticlesForImport(destinationId, lastArticleUpdatedOn);
 	}
 }

@@ -2,7 +2,7 @@ import {Col, Form, Row, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {NumberUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
+import {ConfirmDialogContext, DateTimeInput, DeleteButton, FormRow, FormRowControl, SaveButton, Switch} from "zavadil-react-common";
 import DestinationArticlesList from "./DestinationArticlesList";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
@@ -139,6 +139,28 @@ export default function DestinationDetail() {
 							onChanged();
 						}}
 					/>
+					<FormRowControl
+						label="Název pro synchronizaci"
+						type="text"
+						value={StringUtil.getNonEmpty(data.apiSyncName)}
+						onChange={(e) => {
+							data.apiSyncName = e.target.value;
+							onChanged();
+						}}
+					/>
+					<FormRow label="Poslední synchronizovaný článek">
+						<div className="float-start">
+							<Stack direction="horizontal" gap={2}>
+								<DateTimeInput
+									value={data.apiSyncLastArticleSynced}
+									onChange={(d) => {
+										data.apiSyncLastArticleSynced = d || null;
+										onChanged();
+									}}
+								/>
+							</Stack>
+						</div>
+					</FormRow>
 					<Row>
 						<Col>
 							<Stack gap={3}>

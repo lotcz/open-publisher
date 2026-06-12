@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.Instant;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -19,6 +21,18 @@ public class Destination extends EntityWithNameBase {
 	private boolean active;
 
 	private int headerLevel = 2;
+
+	static final int SYNC_NAME_LENGTH = 50;
+
+	@Column(length = SYNC_NAME_LENGTH)
+	@Size(max = SYNC_NAME_LENGTH)
+	private String apiSyncName;
+
+	public void setApiSyncName(String name) {
+		this.apiSyncName = this.truncateString(name, SYNC_NAME_LENGTH);
+	}
+
+	private Instant apiSyncLastArticleSynced;
 
 	/* PREVIEW DESIGN */
 

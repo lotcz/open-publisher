@@ -30,6 +30,7 @@ public class UsersController {
 	}
 
 	@PutMapping("profile/password")
+	@Secured({UserRole.GUEST_ROLE_NAME})
 	public void changeMyPassword(
 		@AuthenticationPrincipal User user,
 		@RequestBody String password

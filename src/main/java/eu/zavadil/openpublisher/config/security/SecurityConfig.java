@@ -1,6 +1,5 @@
 package eu.zavadil.openpublisher.config.security;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -80,14 +79,6 @@ public class SecurityConfig {
 			.csrf(c -> {
 				c.disable();
 			})
-			.exceptionHandling(ex -> ex
-				.authenticationEntryPoint((request, response, authException) ->
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
-				)
-				.accessDeniedHandler((request, response, accessDeniedException) ->
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden")
-				)
-			)
 			.securityMatcher(String.format("%s/**", this.apiBaseUrl))
 			.addFilterBefore(this.authenticationFilter, AuthorizationFilter.class);
 		return http.build();

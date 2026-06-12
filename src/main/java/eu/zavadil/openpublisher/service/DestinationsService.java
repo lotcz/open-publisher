@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -39,4 +40,11 @@ public class DestinationsService {
 		if (destination.getId() != null) this.delete(destination.getId());
 	}
 
+	public Destination loadBySyncName(String syncName) {
+		return this.repository.findFirstByApiSyncName(syncName).orElse(null);
+	}
+
+	public void updateLastSynced(int destinationId, Instant date) {
+		this.repository.updateArticleLastSync(destinationId, date);
+	}
 }

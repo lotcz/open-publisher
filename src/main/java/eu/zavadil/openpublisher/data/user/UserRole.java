@@ -7,7 +7,8 @@ public enum UserRole {
 	Superuser(UserRole.SUPERUSER_ROLE_NAME, true),
 	Admin(UserRole.ADMIN_ROLE_NAME, true),
 	Editor(UserRole.EDITOR_ROLE_NAME),
-	Guest(UserRole.GUEST_ROLE_NAME);
+	Guest(UserRole.GUEST_ROLE_NAME),
+	Api(UserRole.API_ROLE_NAME);
 
 	public static final String SUPERUSER_ROLE_NAME = "ROLE_SUPERUSER";
 
@@ -16,6 +17,8 @@ public enum UserRole {
 	public static final String EDITOR_ROLE_NAME = "ROLE_EDITOR";
 
 	public static final String GUEST_ROLE_NAME = "ROLE_GUEST";
+
+	public static final String API_ROLE_NAME = "ROLE_API";
 
 	private final String authorityName;
 
