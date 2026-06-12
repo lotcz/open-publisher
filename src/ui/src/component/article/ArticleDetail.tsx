@@ -224,7 +224,7 @@ export default function ArticleDetail() {
 					>Udělit přístup</IconButton>
 				}
 				{
-					(session.user.userRole === 'Admin' || session.user.userRole === 'Superadmin') &&
+					(session.user.userRole === 'Admin' || session.user.userRole === 'Superuser') &&
 					<DeleteButton loading={deleting} disabled={!data.id} onClick={deleteAccount}>
 						Smazat
 					</DeleteButton>

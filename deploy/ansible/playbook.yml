@@ -1,10 +1,10 @@
-- name: Deploy or update WorldNews server
+- name: Deploy or update Open Publisher server
   hosts: all
   become: no
   vars:
     ansible_ssh_private_key_file: "/var/ansible-ssh-key"
     build_dir: "/build"
-    binary_name: "merch-master.jar"
+    binary_name: "open-publisher.jar"
 
   tasks:
     - name: Ensure /rsa-store directory exists

@@ -14,7 +14,7 @@
 
 	<groupId>eu.zavadil.openpublisher</groupId>
 	<artifactId>open-publisher</artifactId>
-	<version>0.0.1</version>
+	<version>1.0.0</version>
 	<name>Open Publisher</name>
 
 	<properties>
@@ -36,8 +36,8 @@
 
 		<dependency>
 			<groupId>eu.zavadil.java</groupId>
-			<artifactId>oauth-client</artifactId>
-			<version>2.3.13</version>
+			<artifactId>oauth-common</artifactId>
+			<version>2.3.7</version>
 		</dependency>
 
 		<dependency>
@@ -59,10 +59,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

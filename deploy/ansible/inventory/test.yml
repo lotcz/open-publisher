@@ -1,0 +1,10 @@
+test:
+  hosts:
+    test.zavadil.eu:
+  vars:
+    target_dir: /opt/open-publisher
+    application_files: conf/test
+    service_name: open-publisher-test
+    spring_env: test
+    proxy_port: 8091
+    domain: publikace.test.zavadil.eu
