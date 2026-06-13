@@ -23,3 +23,4 @@ src/main/resources/public
 .$*
 *.bkp
 /scratches/http-client.private.env.json
+/scratch/http-client.private.env.json
