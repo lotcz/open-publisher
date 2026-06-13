@@ -7,9 +7,11 @@ import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
 import {Article} from "../../../types/Article";
 import {DateTimeCs} from "../../general/DateTimeCs";
+import ArticleStateBadge from "../../article/ArticleStateBadge";
 
 const HEADER: SelectableTableHeader<Article> = [
 	{name: "header", label: "Nadpis"},
+	{name: "articleState", label: "Stav", renderer: (a) => <ArticleStateBadge state={a.articleState}/>},
 	{name: "owner.email", label: "Vlastník"},
 	{name: "partner.email", label: "Partner"},
 	{name: "lastUpdatedOn", label: "Upraven", renderer: (p) => <DateTimeCs value={p.lastUpdatedOn}/>},

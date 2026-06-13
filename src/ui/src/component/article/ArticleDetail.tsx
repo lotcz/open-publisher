@@ -155,7 +155,7 @@ export default function ArticleDetail() {
 							disabled={!valid}
 							onClick={() => {
 								confirmDialog.confirm(
-									'Skrýt článkek?',
+									'Skrýt článek?',
 									'Opravdu si přejete skrýt článek? Článek bude odebrán z webu, pokud již byl publikován.',
 									() => {
 										data.articleState = 'Hidden';

@@ -51,9 +51,9 @@ export default function EditorDashboard() {
 				activeDestinations ? <Stack gap={3} className="mb-3">
 						{
 							activeDestinations.map(
-								(destination) => <div>
+								(destination) => <div key={destination.id}>
 									<h4>{destination.name}</h4>
-									<Stack key={destination.id} gap={2}>
+									<Stack gap={2}>
 										<div>
 											<IconButton
 												icon={<BsEnvelopeAt/>}

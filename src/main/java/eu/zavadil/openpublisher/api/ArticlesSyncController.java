@@ -1,6 +1,8 @@
 package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
+import eu.zavadil.java.spring.common.paging.JsonPage;
+import eu.zavadil.java.spring.common.paging.JsonPageImpl;
 import eu.zavadil.openpublisher.data.article.ArticleStub;
 import eu.zavadil.openpublisher.data.destination.Destination;
 import eu.zavadil.openpublisher.data.user.UserRole;
@@ -13,14 +15,13 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @RestController
-@RequestMapping("${api.base-url}/api-sync")
+@RequestMapping("${api.base-url}/articles-sync")
 @Tag(name = "Sync articles")
 @Slf4j
 @Secured({UserRole.API_ROLE_NAME})
-public class ApiSyncController {
+public class ArticlesSyncController {
 
 	@Autowired
 	DestinationsService destinationsService;
@@ -29,14 +30,22 @@ public class ApiSyncController {
 	ArticlesService articlesService;
 
 	@GetMapping("{destinationName}")
-	public List<ArticleStub> loadUnsynced(@PathVariable String destinationName) {
+	public JsonPage<ArticleStub> loadUnsynced(
+		@PathVariable String destinationName,
+		@RequestParam(required = false, defaultValue = "10") int size
+	) {
 		Destination destination = this.destinationsService.loadBySyncName(destinationName);
 		if (destination == null) throw new ResourceNotFoundException("Destination", destinationName);
-		return this.articlesService.loadArticlesForImport(destination.getId(), destination.getApiSyncLastArticleSynced());
+		return JsonPageImpl.of(
+			this.articlesService.loadArticlesForImport(destination.getId(), destination.getApiSyncLastArticleSynced(), size)
+		);
 	}
 
 	@PutMapping("{destinationName}/last-synced")
-	public void updateLastSynced(@PathVariable String destinationName, @RequestBody Instant lastSynced) {
+	public void updateLastSynced(
+		@PathVariable(required = true) String destinationName,
+		@RequestBody(required = false) Instant lastSynced
+	) {
 		Destination destination = this.destinationsService.loadBySyncName(destinationName);
 		if (destination == null) throw new ResourceNotFoundException("Destination", destinationName);
 		this.destinationsService.updateLastSynced(destination.getId(), lastSynced);

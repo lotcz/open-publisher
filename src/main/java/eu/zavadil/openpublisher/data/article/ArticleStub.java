@@ -19,5 +19,5 @@ public class ArticleStub extends ArticleBase {
 	private Integer partnerId;
 
 	@Column(name = "destination_id")
-	private Integer destinationId;
+	private int destinationId;
 }

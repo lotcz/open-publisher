@@ -1,7 +1,7 @@
 import {Form, Stack} from "react-bootstrap";
 import {useContext, useState} from "react";
 import {ObjectUtil, StringUtil} from "zavadil-ts-common";
-import {FormRow, IconButton} from "zavadil-react-common";
+import {FormRow, FormRowControl, IconButton} from "zavadil-react-common";
 import {useRestClient} from "../../client/OpRestClient";
 import {UserAlertsContext} from "../../util/UserAlerts";
 import {ArticleStub} from "../../types/Article";
@@ -81,6 +81,17 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 							</Stack>
 						</div>
 					</FormRow>
+
+					<FormRowControl
+						label="Perex"
+						type="textarea"
+						as="textarea"
+						value={StringUtil.getNonEmpty(article.previewText)}
+						onChange={(e) => {
+							article.previewText = e.target.value;
+							onChanged();
+						}}
+					/>
 
 					<FormRow label="Text článku">
 						<div style={{maxWidth: 900}}>

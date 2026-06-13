@@ -1,15 +1,18 @@
 package eu.zavadil.openpublisher.data.article;
 
 import eu.zavadil.java.spring.common.entity.EntityRepository;
+import eu.zavadil.java.spring.common.paging.PagingUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
-import java.util.List;
 
 public interface ArticleStubRepository extends EntityRepository<ArticleStub> {
 
-	List<ArticleStub> findAllByDestinationIdOrderByLastUpdatedOnAsc(int destinationId);
+	Page<ArticleStub> findAllByDestinationIdOrderByLastUpdatedOnAsc(int destinationId, Pageable pr);
 
 	@Query("""
 			select a
@@ -17,13 +20,19 @@ public interface ArticleStubRepository extends EntityRepository<ArticleStub> {
 			where a.destinationId = :destinationId and a.lastUpdatedOn > :lastArticleUpdatedOn
 			order by a.lastUpdatedOn asc
 		""")
-	List<ArticleStub> loadArticlesForImportFromLastUpdated(
+	Page<ArticleStub> loadArticlesForImportFromLastUpdated(
 		@Param("destinationId") int destinationId,
-		@Param("lastArticleUpdatedOn") Instant lastArticleUpdatedOn
+		@Param("lastArticleUpdatedOn") Instant lastArticleUpdatedOn,
+		Pageable pr
 	);
 
-	default List<ArticleStub> loadArticlesForImport(int destinationId, Instant lastArticleUpdatedOn) {
-		return lastArticleUpdatedOn == null ? this.findAllByDestinationIdOrderByLastUpdatedOnAsc(destinationId)
-			: this.loadArticlesForImportFromLastUpdated(destinationId, lastArticleUpdatedOn);
+	default Page<ArticleStub> loadArticlesForImport(
+		int destinationId,
+		Instant lastArticleUpdatedOn,
+		int size
+	) {
+		PageRequest pr = PagingUtils.of(0, size);
+		return lastArticleUpdatedOn == null ? this.findAllByDestinationIdOrderByLastUpdatedOnAsc(destinationId, pr)
+			: this.loadArticlesForImportFromLastUpdated(destinationId, lastArticleUpdatedOn, pr);
 	}
 }

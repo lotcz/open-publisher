@@ -155,7 +155,7 @@ export default function UserDetail() {
 							Smazat
 						</DeleteButton>
 						<Button onClick={changePassword}>
-							Změnit heslo
+							Změnit heslo...
 						</Button>
 						<IconButton
 							icon={<BsEnvelopeAt/>}

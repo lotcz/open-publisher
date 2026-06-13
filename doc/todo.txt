@@ -1,5 +1,6 @@
+- categories
+- article gallery
 - wordpress plugin
-- zEngine integration
 - first create a link, then offer to send email
-- ask
+
 

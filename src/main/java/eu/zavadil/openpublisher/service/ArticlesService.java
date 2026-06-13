@@ -168,7 +168,11 @@ public class ArticlesService {
 		return this.imageRepository.save(image);
 	}
 
-	public List<ArticleStub> loadArticlesForImport(int destinationId, Instant lastArticleUpdatedOn) {
-		return this.stubRepository.loadArticlesForImport(destinationId, lastArticleUpdatedOn);
+	public Page<ArticleStub> loadArticlesForImport(
+		int destinationId,
+		Instant lastArticleUpdatedOn,
+		int size
+	) {
+		return this.stubRepository.loadArticlesForImport(destinationId, lastArticleUpdatedOn, size);
 	}
 }
