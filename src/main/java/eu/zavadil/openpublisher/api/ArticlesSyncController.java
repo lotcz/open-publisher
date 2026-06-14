@@ -13,6 +13,7 @@ import eu.zavadil.openpublisher.service.ArticlesService;
 import eu.zavadil.openpublisher.service.DestinationsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.internal.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -66,31 +67,13 @@ public class ArticlesSyncController {
 		return JsonPageImpl.of(result, 0, result.size(), result.size());
 	}
 
-	@PutMapping("{destinationName}/categories/{categoryId}")
-	public CategoryStub updateCategory(
-		@PathVariable String destinationName,
-		@PathVariable int categoryId,
-		@RequestBody String categoryName
-	) {
-		Destination destination = this.destinationsService.loadBySyncName(destinationName);
-		if (destination == null) throw new ResourceNotFoundException("Destination", destinationName);
-
-		CategoryStub existing = this.categoryRepository.findById(categoryId).orElse(null);
-		if (existing == null) throw new ResourceNotFoundException("Category", categoryId);
-
-		if (existing.getDestinationId() != destination.getId())
-			throw new BadRequestException("Category doesn't belong to this destination");
-
-		existing.setDestinationId(destination.getId());
-		existing.setName(categoryName);
-		return this.categoryRepository.save(existing);
-	}
-
 	@PostMapping("{destinationName}/categories")
 	public CategoryStub insertCategory(
 		@PathVariable String destinationName,
 		@RequestBody String categoryName
 	) {
+		categoryName = JsonUtils.parseJson(categoryName, String.class);
+
 		Destination destination = this.destinationsService.loadBySyncName(destinationName);
 		if (destination == null) throw new ResourceNotFoundException("Destination", destinationName);
 
@@ -104,6 +87,28 @@ public class ArticlesSyncController {
 		category.setDestinationId(destination.getId());
 		category.setName(categoryName);
 		return this.categoryRepository.save(category);
+	}
+
+	@PutMapping("{destinationName}/categories/{categoryId}")
+	public CategoryStub updateCategory(
+		@PathVariable String destinationName,
+		@PathVariable int categoryId,
+		@RequestBody String categoryName
+	) {
+		categoryName = JsonUtils.parseJson(categoryName, String.class);
+
+		Destination destination = this.destinationsService.loadBySyncName(destinationName);
+		if (destination == null) throw new ResourceNotFoundException("Destination", destinationName);
+
+		CategoryStub existing = this.categoryRepository.findById(categoryId).orElse(null);
+		if (existing == null) throw new ResourceNotFoundException("Category", categoryId);
+
+		if (existing.getDestinationId() != destination.getId())
+			throw new BadRequestException("Category doesn't belong to this destination");
+
+		existing.setDestinationId(destination.getId());
+		existing.setName(categoryName);
+		return this.categoryRepository.save(existing);
 	}
 
 	@DeleteMapping("{destinationName}/categories/{categoryId}")
