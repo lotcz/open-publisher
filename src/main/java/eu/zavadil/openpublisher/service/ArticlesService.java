@@ -9,6 +9,8 @@ import eu.zavadil.java.util.IntegerUtils;
 import eu.zavadil.java.util.JsonUtils;
 import eu.zavadil.java.util.StringUtils;
 import eu.zavadil.openpublisher.data.article.*;
+import eu.zavadil.openpublisher.data.articleCategory.ArticleCategory;
+import eu.zavadil.openpublisher.data.articleCategory.ArticleCategoryRepository;
 import eu.zavadil.openpublisher.data.articleHistory.ArticleHistoryAction;
 import eu.zavadil.openpublisher.data.articleImage.ArticleImage;
 import eu.zavadil.openpublisher.data.articleImage.ArticleImageRepository;
@@ -32,6 +34,9 @@ public class ArticlesService {
 
 	@Autowired
 	ArticleImageRepository imageRepository;
+
+	@Autowired
+	ArticleCategoryRepository articleCategoryRepository;
 
 	@Autowired
 	ImagezSmartApi imagez;
@@ -174,5 +179,25 @@ public class ArticlesService {
 		int size
 	) {
 		return this.stubRepository.loadArticlesForImport(destinationId, lastArticleUpdatedOn, size);
+	}
+
+	public List<Integer> loadActiveCategories(int articleId) {
+		return this.articleCategoryRepository.loadArticleCategories(articleId);
+	}
+
+	public void updateActiveCategories(int articleId, List<Integer> categories) {
+		List<Integer> activeCategories = this.loadActiveCategories(articleId);
+		this.articleCategoryRepository.deleteArticleCategories(
+			articleId,
+			activeCategories
+				.stream()
+				.filter((acId) -> !categories.contains(acId))
+				.toList()
+		);
+		categories
+			.stream()
+			.filter((ncId) -> !activeCategories.contains(ncId))
+			.map((ncId) -> new ArticleCategory(articleId, ncId))
+			.forEach((ac) -> this.articleCategoryRepository.save(ac));
 	}
 }

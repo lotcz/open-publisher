@@ -1,6 +1,8 @@
 package eu.zavadil.openpublisher.service;
 
 import eu.zavadil.java.spring.common.paging.PagingUtils;
+import eu.zavadil.openpublisher.data.category.CategoryStub;
+import eu.zavadil.openpublisher.data.category.CategoryStubRepository;
 import eu.zavadil.openpublisher.data.destination.Destination;
 import eu.zavadil.openpublisher.data.destination.DestinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ public class DestinationsService {
 
 	@Autowired
 	DestinationRepository repository;
+
+	@Autowired
+	CategoryStubRepository categoryStubRepository;
 
 	public Page<Destination> search(int page, int size, String search, String sorting) {
 		return this.repository.search(search, PagingUtils.of(page, size, sorting));
@@ -38,6 +43,10 @@ public class DestinationsService {
 
 	public void delete(Destination destination) {
 		if (destination.getId() != null) this.delete(destination.getId());
+	}
+
+	public List<CategoryStub> loadCategories(int destinationId) {
+		return this.categoryStubRepository.findAllByDestinationId(destinationId);
 	}
 
 	public Destination loadBySyncName(String syncName) {

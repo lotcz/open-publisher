@@ -118,6 +118,31 @@ public class ArticlesController {
 	}
 
 	/*
+		ARTICLE CATEGORIES
+	 */
+
+	@GetMapping("{id}/categories")
+	public List<Integer> getArticleCategories(
+		@AuthenticationPrincipal User user,
+		@PathVariable int id
+	) {
+		if (!this.articlesService.canAccess(user, id))
+			throw new NotAuthorizedException("K tomuto článku nemáte právo přístupu");
+		return this.articlesService.loadActiveCategories(id);
+	}
+
+	@PostMapping("{id}/categories")
+	public void updateCategories(
+		@AuthenticationPrincipal User user,
+		@PathVariable int id,
+		@RequestBody List<Integer> categories
+	) {
+		if (!this.articlesService.canAccess(user, id))
+			throw new NotAuthorizedException("K tomuto článku nemáte právo přístupu");
+		this.articlesService.updateActiveCategories(id, categories);
+	}
+
+	/*
 		ARTICLE IMAGES
 	 */
 
