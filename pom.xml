@@ -14,7 +14,7 @@
 
 	<groupId>eu.zavadil.openpublisher</groupId>
 	<artifactId>open-publisher</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2</version>
 	<name>Open Publisher</name>
 
 	<properties>
