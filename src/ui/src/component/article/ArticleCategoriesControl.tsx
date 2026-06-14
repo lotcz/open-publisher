@@ -59,27 +59,29 @@ export default function ArticleCategoriesControl({article, onChanged}: ArticleCa
 
 	if (!(items && activeCategories)) return <Spinner/>;
 
-	return <div className="d-flex flex-wrap gap-5">
+	return <div className="d-flex flex-wrap gap-2">
 		{
 			items.map(
-				(item) => <Switch
-					key={item.id}
-					checked={item.selected}
-					label={item.name}
-					onChange={
-						(checked) => {
-							let newActiveCats;
-							if (checked) {
-								newActiveCats = [...activeCategories];
-								newActiveCats.push(item.id);
-							} else {
-								newActiveCats = ArrayUtil.remove(activeCategories, item.id);
+				(item) => <div className="pe-3">
+					<Switch
+						key={item.id}
+						checked={item.selected}
+						label={item.name}
+						onChange={
+							(checked) => {
+								let newActiveCats;
+								if (checked) {
+									newActiveCats = [...activeCategories];
+									newActiveCats.push(item.id);
+								} else {
+									newActiveCats = ArrayUtil.remove(activeCategories, item.id);
+								}
+								setActiveCategories(newActiveCats);
+								onChanged(newActiveCats);
 							}
-							setActiveCategories(newActiveCats);
-							onChanged(newActiveCats);
 						}
-					}
-				/>
+					/>
+				</div>
 			)
 		}
 	</div>
