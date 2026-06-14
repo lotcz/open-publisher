@@ -24,6 +24,14 @@ export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 		return this.client.postFormJson(`${this.name}/${articleId}/images`, formData);
 	}
 
+	loadArticleCategories(articleId: number): Promise<Array<number>> {
+		return this.client.getJson(`${this.name}/${articleId}/categories`);
+	}
+
+	updateArticleCategories(articleId: number, categoryIds: Array<number>): Promise<any> {
+		return this.client.putJson(`${this.name}/${articleId}/categories`, categoryIds);
+	}
+
 	importDocx(file: File): Promise<ImportedArticlePayload> {
 		let formData = new FormData();
 		formData.append("file", file);

@@ -2,6 +2,7 @@ package eu.zavadil.openpublisher.api;
 
 import eu.zavadil.java.spring.common.paging.JsonPage;
 import eu.zavadil.java.spring.common.paging.JsonPageImpl;
+import eu.zavadil.openpublisher.data.category.CategoryStub;
 import eu.zavadil.openpublisher.data.destination.Destination;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import eu.zavadil.openpublisher.service.DestinationsService;
@@ -62,6 +63,11 @@ public class DestinationsController {
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public void delete(@PathVariable int id) {
 		this.destinationsService.delete(id);
+	}
+
+	@GetMapping("{id}/categories")
+	public List<CategoryStub> getCategories(@PathVariable int id) {
+		return this.destinationsService.loadCategories(id);
 	}
 
 }

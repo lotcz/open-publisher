@@ -131,7 +131,7 @@ public class ArticlesController {
 		return this.articlesService.loadActiveCategories(id);
 	}
 
-	@PostMapping("{id}/categories")
+	@PutMapping("{id}/categories")
 	public void updateCategories(
 		@AuthenticationPrincipal User user,
 		@PathVariable int id,

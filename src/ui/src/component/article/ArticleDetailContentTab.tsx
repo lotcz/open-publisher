@@ -12,13 +12,15 @@ import {ImageUploadButton} from "../images/ImageUploadButton";
 import {WaitingDialogContext} from "../../util/WaitingDialogContext";
 import ArticleFullscreenEditDialog, {ArticleFullscreenEditDialogProps} from "./ArticleFullscreenEditDialog";
 import {BsFullscreen} from "react-icons/bs";
+import ArticleCategoriesControl from "./ArticleCategoriesControl";
 
 export type ArticleDetailContentTabProps = {
 	article: ArticleStub;
 	onChanged: () => any;
+	onCategoriesChanged: (activeCategoryIds: Array<number>) => any;
 }
 
-export default function ArticleDetailContentTab({article, onChanged}: ArticleDetailContentTabProps) {
+export default function ArticleDetailContentTab({article, onChanged, onCategoriesChanged}: ArticleDetailContentTabProps) {
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const waitingDialog = useContext(WaitingDialogContext);
@@ -29,30 +31,10 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 		<div className="pt-2">
 			<Form>
 				<Stack gap={2}>
-					<IconButton
-						icon={<BsFullscreen/>}
-						type="button"
-						variant="outline-info"
-						onClick={
-							() => {
-								setFullscreenDialog(
-									{
-										article: article,
-										onClose: () => setFullscreenDialog(undefined),
-										onConfirmed: (edited: ArticleStub) => {
-											if (edited.contentHtml !== article.contentHtml) {
-												article.contentHtml = edited.contentHtml;
-												onChanged();
-											}
-											setFullscreenDialog(undefined);
-										}
-									}
-								);
-							}
-						}
-					>
-						Otevřít editaci na celou obrazovku
-					</IconButton>
+					<FormRow label="Kategorie">
+						<ArticleCategoriesControl article={article} onChanged={onCategoriesChanged}/>
+					</FormRow>
+
 					<FormRow label="Hlavní obrázek">
 						<div className="float-start">
 							<Stack gap={2}>
@@ -94,7 +76,31 @@ export default function ArticleDetailContentTab({article, onChanged}: ArticleDet
 					/>
 
 					<FormRow label="Text článku">
-						<div style={{maxWidth: 900}}>
+						<IconButton
+							icon={<BsFullscreen/>}
+							type="button"
+							variant="outline-info"
+							onClick={
+								() => {
+									setFullscreenDialog(
+										{
+											article: article,
+											onClose: () => setFullscreenDialog(undefined),
+											onConfirmed: (edited: ArticleStub) => {
+												if (edited.contentHtml !== article.contentHtml) {
+													article.contentHtml = edited.contentHtml;
+													onChanged();
+												}
+												setFullscreenDialog(undefined);
+											}
+										}
+									);
+								}
+							}
+						>
+							Otevřít editaci na celou obrazovku
+						</IconButton>
+						<div>
 							{
 								(importing || ObjectUtil.notEmpty(fullScreenDialog)) || <TinyMceInput
 									initialValue={StringUtil.getNonEmpty(article.contentHtml)}

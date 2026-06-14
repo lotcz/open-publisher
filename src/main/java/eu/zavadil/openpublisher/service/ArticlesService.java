@@ -19,6 +19,7 @@ import eu.zavadil.openpublisher.data.user.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -185,6 +186,7 @@ public class ArticlesService {
 		return this.articleCategoryRepository.loadArticleCategories(articleId);
 	}
 
+	@Transactional
 	public void updateActiveCategories(int articleId, List<Integer> categories) {
 		List<Integer> activeCategories = this.loadActiveCategories(articleId);
 		this.articleCategoryRepository.deleteArticleCategories(

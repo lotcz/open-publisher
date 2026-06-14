@@ -32,6 +32,7 @@ export default function ArticleDetail() {
 	const grantGuestAccessDialog = useContext(GrantGuestAccessDialogContext);
 	const [activeTab, setActiveTab] = useState<string>();
 	const [data, setData] = useState<ArticleStub>();
+	const [updatedCategories, setUpdatedCategories] = useState<Array<number>>();
 	const [valid, setValid] = useState<boolean>(false);
 	const [changed, setChanged] = useState<boolean>(false);
 	const [deleting, setDeleting] = useState<boolean>(false);
@@ -91,6 +92,14 @@ export default function ArticleDetail() {
 			.articles
 			.saveStub(data)
 			.then((f) => {
+				if (updatedCategories) {
+					return restClient.articles
+						.updateArticleCategories(Number(data.id), updatedCategories)
+						.then(() => f);
+				}
+				return f;
+			})
+			.then((f) => {
 				if (inserting) {
 					navigator.articles.detail(f.id, true);
 				} else {
@@ -100,7 +109,7 @@ export default function ArticleDetail() {
 			})
 			.catch((e: Error) => userAlerts.err(e))
 			.finally(() => setSaving(false));
-	}, [restClient, data, userAlerts, navigator, valid]);
+	}, [restClient, data, userAlerts, navigator, valid, updatedCategories]);
 
 	const deleteAccount = useCallback(() => {
 		if (!data?.id) return;
@@ -231,7 +240,15 @@ export default function ArticleDetail() {
 				}
 			</Stack>
 
-			<Form>
+			<Form
+				onSubmit={
+					(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						saveData();
+					}
+				}
+			>
 				<Stack gap={2}>
 					<FormRow label="Stav publikace">
 						<Stack direction="horizontal" gap={2}>
@@ -283,7 +300,19 @@ export default function ArticleDetail() {
 					}
 				</Tabs>
 				<div className="px-3 py-1">
-					{activeTab === "obsah" && <ArticleDetailContentTab article={data} onChanged={onChanged}/>}
+					{
+						activeTab === "obsah" &&
+						<ArticleDetailContentTab
+							article={data}
+							onChanged={onChanged}
+							onCategoriesChanged={
+								(cats) => {
+									setUpdatedCategories(cats);
+									onChanged();
+								}
+							}
+						/>
+					}
 					{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
 					{data.id && activeTab === "historie" && <ArticleHistoryTab articleId={data.id}/>}
 				</div>
