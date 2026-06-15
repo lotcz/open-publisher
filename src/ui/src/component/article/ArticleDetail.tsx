@@ -38,6 +38,8 @@ export default function ArticleDetail() {
 	const [deleting, setDeleting] = useState<boolean>(false);
 	const [saving, setSaving] = useState<boolean>(false);
 
+	const isReadOnly = useMemo<boolean>(() => !data || data.articleState === 'Approved', [data]);
+
 	useEffect(() => {
 		if (!activeTab) return;
 		searchParams.set(TAB_PARAM_NAME, activeTab);
@@ -260,6 +262,7 @@ export default function ArticleDetail() {
 							<Form.Control
 								size="lg"
 								type="text"
+								disabled={isReadOnly}
 								value={data.header}
 								onChange={(e) => {
 									data.header = e.target.value;
@@ -304,6 +307,7 @@ export default function ArticleDetail() {
 						activeTab === "obsah" &&
 						<ArticleDetailContentTab
 							article={data}
+							isReadOnly={isReadOnly}
 							onChanged={onChanged}
 							onCategoriesChanged={
 								(cats) => {
@@ -313,7 +317,7 @@ export default function ArticleDetail() {
 							}
 						/>
 					}
-					{activeTab === "publikace" && <ArticleDetailPublishingTab article={data} onChanged={onChanged}/>}
+					{activeTab === "publikace" && <ArticleDetailPublishingTab isReadOnly={isReadOnly} article={data} onChanged={onChanged}/>}
 					{data.id && activeTab === "historie" && <ArticleHistoryTab articleId={data.id}/>}
 				</div>
 			</div>

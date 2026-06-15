@@ -6,10 +6,11 @@ export type FileUploadButtonProps = {
 	id?: string;
 	accept?: string;
 	label?: string;
+	disabled?: boolean;
 	onSelected: (file: File) => any;
 };
 
-export function FileUploadButton({id, label = "...", onSelected, accept = "*"}: FileUploadButtonProps) {
+export function FileUploadButton({disabled, id, label = "...", onSelected, accept = "*"}: FileUploadButtonProps) {
 	const finalId = useMemo(() => id || StringUtil.randomString(), [id]);
 
 	return (
@@ -23,6 +24,7 @@ export function FileUploadButton({id, label = "...", onSelected, accept = "*"}: 
 				id={finalId}
 				className="d-none"
 				type="file"
+				disabled={disabled}
 				accept={accept}
 				onChange={(e) => {
 					const filelist = (e.target as HTMLInputElement).files;

@@ -6,11 +6,12 @@ import DestinationIdSelect from "../admin/destination/DestinationIdSelect";
 import {NumberUtil} from "zavadil-ts-common";
 
 export type ArticleDetailPublishingTabTabProps = {
+	isReadOnly: boolean;
 	article: ArticleStub;
 	onChanged: () => any;
 }
 
-export default function ArticleDetailPublishingTab({article, onChanged}: ArticleDetailPublishingTabTabProps) {
+export default function ArticleDetailPublishingTab({isReadOnly, article, onChanged}: ArticleDetailPublishingTabTabProps) {
 
 	return (
 		<div>
@@ -20,6 +21,7 @@ export default function ArticleDetailPublishingTab({article, onChanged}: Article
 						<div className="float-start">
 							<DestinationIdSelect
 								destinationId={article.destinationId}
+								disabled={isReadOnly}
 								onChange={
 									(id) => {
 										article.destinationId = id;
@@ -38,6 +40,7 @@ export default function ArticleDetailPublishingTab({article, onChanged}: Article
 							<Stack direction="horizontal" gap={2}>
 								<DateTimeInput
 									value={article.publishDate}
+									disabled={isReadOnly}
 									onChange={(d) => {
 										article.publishDate = d || null;
 										onChanged();

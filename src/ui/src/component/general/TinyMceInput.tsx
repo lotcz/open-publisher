@@ -7,10 +7,11 @@ export type TinyMceInputProps = {
 	initialValue: string;
 	height?: string | number;
 	stickyToolbar?: boolean;
+	disabled?: boolean;
 	onChange: (value: string) => any;
 };
 
-export default function TinyMceInput({initialValue, stickyToolbar = false, height, onChange}: TinyMceInputProps) {
+export default function TinyMceInput({disabled, initialValue, stickyToolbar = false, height, onChange}: TinyMceInputProps) {
 	const value = useMemo(() => initialValue, []);
 	const restClient = useRestClient();
 	const userSession = useUserSession();
@@ -29,6 +30,7 @@ export default function TinyMceInput({initialValue, stickyToolbar = false, heigh
 		initialValue={value}
 		tinymceScriptSrc="https://zavadil.eu/tinymce8/tinymce.min.js"
 		licenseKey="gpl"
+		disabled={disabled}
 		init={{
 			promotion: false,
 			branding: false,

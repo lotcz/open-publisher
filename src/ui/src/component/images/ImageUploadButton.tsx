@@ -5,9 +5,10 @@ import {useRestClient} from "../../client/OpRestClient";
 export type ImageUploadButtonProps = {
 	label?: string | null;
 	onSelected: (imageName: string) => any;
+	disabled?: boolean;
 };
 
-export function ImageUploadButton({label, onSelected}: ImageUploadButtonProps) {
+export function ImageUploadButton({disabled, label, onSelected}: ImageUploadButtonProps) {
 	const restClient = useRestClient();
 	const [uploading, setUploading] = useState<boolean>(false);
 
@@ -38,6 +39,7 @@ export function ImageUploadButton({label, onSelected}: ImageUploadButtonProps) {
 				className="d-none"
 				type="file"
 				accept="image/*"
+				disabled={disabled}
 				onChange={(e) => {
 					const filelist = (e.target as HTMLInputElement).files;
 					if (!filelist) {

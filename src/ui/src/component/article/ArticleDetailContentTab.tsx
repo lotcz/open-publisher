@@ -16,11 +16,12 @@ import ArticleCategoriesControl from "./ArticleCategoriesControl";
 
 export type ArticleDetailContentTabProps = {
 	article: ArticleStub;
+	isReadOnly: boolean;
 	onChanged: () => any;
 	onCategoriesChanged: (activeCategoryIds: Array<number>) => any;
 }
 
-export default function ArticleDetailContentTab({article, onChanged, onCategoriesChanged}: ArticleDetailContentTabProps) {
+export default function ArticleDetailContentTab({isReadOnly, article, onChanged, onCategoriesChanged}: ArticleDetailContentTabProps) {
 	const restClient = useRestClient();
 	const userAlerts = useContext(UserAlertsContext);
 	const waitingDialog = useContext(WaitingDialogContext);
@@ -44,6 +45,7 @@ export default function ArticleDetailContentTab({article, onChanged, onCategorie
 								<Stack direction="horizontal" gap={2}>
 									<ImageUploadButton
 										label="Nahrát..."
+										disabled={isReadOnly}
 										onSelected={(d) => {
 											article.imageName = d || null;
 											onChanged();
@@ -68,6 +70,7 @@ export default function ArticleDetailContentTab({article, onChanged, onCategorie
 						label="Perex"
 						type="textarea"
 						as="textarea"
+						disabled={isReadOnly}
 						value={StringUtil.getNonEmpty(article.previewText)}
 						onChange={(e) => {
 							article.previewText = e.target.value;
@@ -78,6 +81,7 @@ export default function ArticleDetailContentTab({article, onChanged, onCategorie
 					<FormRow label="Text článku">
 						<IconButton
 							icon={<BsFullscreen/>}
+							disabled={isReadOnly}
 							type="button"
 							variant="outline-info"
 							onClick={
@@ -103,6 +107,7 @@ export default function ArticleDetailContentTab({article, onChanged, onCategorie
 						<div>
 							{
 								(importing || ObjectUtil.notEmpty(fullScreenDialog)) || <TinyMceInput
+									disabled={isReadOnly}
 									initialValue={StringUtil.getNonEmpty(article.contentHtml)}
 									onChange={(e) => {
 										article.contentHtml = e;
@@ -117,6 +122,7 @@ export default function ArticleDetailContentTab({article, onChanged, onCategorie
 						<FileUploadButton
 							label="Nahrát..."
 							accept=".docx"
+							disabled={isReadOnly}
 							onSelected={
 								(file) => {
 									waitingDialog.show("Importuji docx...");
