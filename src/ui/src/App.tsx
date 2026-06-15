@@ -81,6 +81,7 @@ export default function App() {
 					}
 					saveSession(newSession);
 					setSessionInitialized(true);
+					userAlerts.reset();
 				}
 			).catch(
 				(e) => {

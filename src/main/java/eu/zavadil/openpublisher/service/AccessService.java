@@ -31,9 +31,6 @@ public class AccessService {
 	@Autowired
 	JwtEncoder jwtEncoder;
 
-	@Autowired
-	UsersService usersService;
-
 	public String encodeAccessToken(JwtAccessToken accessToken) {
 		return this.jwtEncoder.encodeToken(accessToken);
 	}

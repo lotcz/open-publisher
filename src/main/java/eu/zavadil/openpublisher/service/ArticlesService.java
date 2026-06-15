@@ -1,5 +1,6 @@
 package eu.zavadil.openpublisher.service;
 
+import eu.zavadil.java.UrlBuilder;
 import eu.zavadil.java.imagez.client.ImageHealthPayload;
 import eu.zavadil.java.imagez.client.ImagezSmartApi;
 import eu.zavadil.java.spring.common.exceptions.NotAuthorizedException;
@@ -17,6 +18,7 @@ import eu.zavadil.openpublisher.data.articleImage.ArticleImageRepository;
 import eu.zavadil.openpublisher.data.user.User;
 import eu.zavadil.openpublisher.data.user.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,9 @@ import java.util.List;
 
 @Service
 public class ArticlesService {
+
+	@Value("${server.allowedOrigin}")
+	private String urlBase;
 
 	@Autowired
 	ArticleRepository repository;
@@ -47,6 +52,36 @@ public class ArticlesService {
 
 	@Autowired
 	UsersService usersService;
+
+	@Autowired
+	EmailService emailService;
+
+	@Autowired
+	AccessService accessService;
+
+	public String getArticleUrl(ArticleBase article, String accessToken) {
+		UrlBuilder builder = UrlBuilder.of(this.urlBase)
+			.addPath("clanky/detail")
+			.addPath(article.getId().toString());
+		if (StringUtils.notBlank(accessToken)) builder.addQuery("t", accessToken);
+		return builder.buildAsString();
+	}
+
+	public void sendApproveRequestEmail(User senderPartner, User recipientOwner, ArticleBase article) {
+		this.emailService.sendApproveRequestEmail(
+			senderPartner,
+			recipientOwner,
+			this.getArticleUrl(article, this.accessService.createEncodedAccessToken(recipientOwner))
+		);
+	}
+
+	public void sendArticleAccessEmail(User senderAdmin, User recipientPartner, ArticleBase article) {
+		this.emailService.sendArticleAccessEmail(
+			senderAdmin,
+			recipientPartner,
+			this.getArticleUrl(article, this.accessService.createEncodedAccessToken(recipientPartner))
+		);
+	}
 
 	public Page<Article> search(int page, int size, String search, String sorting) {
 		return StringUtils.isBlank(search) ? this.repository.findAll(PagingUtils.of(page, size, sorting))
@@ -77,25 +112,25 @@ public class ArticlesService {
 		return this.stubRepository.findById(id).orElse(null);
 	}
 
-	public ArticleStub save(User user, ArticleStub article) {
+	public ArticleStub save(User authenticatedUser, ArticleStub article) {
 		boolean updating = article.getId() != null;
 		ArticleStub existing = updating ? this.loadById(article.getId()) : null;
 		if (updating && existing == null) throw new ResourceNotFoundException("Článek", article.getId());
 
-		if (user.getUserRole() == UserRole.Guest && updating)
+		if (authenticatedUser.getUserRole() == UserRole.Guest && updating)
 			throw new NotAuthorizedException("Jako externí partner nemáte možnost vkládat nové články");
-		if (!user.getUserRole().isAccessAllArticles() && article.getArticleState() == ArticleState.Approved)
+		if (!authenticatedUser.getUserRole().isAccessAllArticles() && article.getArticleState() == ArticleState.Approved)
 			throw new NotAuthorizedException("Nemáte možnost schvalovat články");
 		if (updating) {
-			if (!this.canAccess(user, existing))
+			if (!this.canAccess(authenticatedUser, existing))
 				throw new NotAuthorizedException("K tomuto článku nemáte právo přístupu");
-			if (!user.getUserRole().isAccessAllArticles() && existing.getArticleState() == ArticleState.Approved)
+			if (!authenticatedUser.getUserRole().isAccessAllArticles() && existing.getArticleState() == ArticleState.Approved)
 				throw new NotAuthorizedException("Jako externí partner nemáte možnost upravovat schválené články");
 		}
 
 		// PROTECT ADMIN FIELDS
 
-		if (updating && !user.getUserRole().isAccessAllArticles()) {
+		if (updating && !authenticatedUser.getUserRole().isAccessAllArticles()) {
 			if (
 				!(
 					IntegerUtils.safeEquals(existing.getPartnerId(), article.getPartnerId())
@@ -114,29 +149,35 @@ public class ArticlesService {
 		ArticleStub saved = this.stubRepository.save(article);
 
 		// UPDATE HISTORY
-
 		if (updating) {
 			if (!(StringUtils.safeEquals(oldContent, article.getContentHtml()) && StringUtils.safeEquals(oldHeader, article.getHeader()) && IntegerUtils.safeEquals(oldDestination, article.getDestinationId())))
-				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.Edit, JsonUtils.toJson(saved));
+				this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.Edit, JsonUtils.toJson(saved));
 			if (saved.getArticleState() != oldState)
-				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.ChangeState, saved.getArticleState().toString());
+				this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.ChangeState, saved.getArticleState().toString());
 			if (!StringUtils.safeEquals(saved.getImageName(), oldImage)) {
 				if (StringUtils.notBlank(oldImage)) {
-					this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.RemoveImage, oldImage);
+					this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.RemoveImage, oldImage);
 				}
 				if (StringUtils.notBlank(saved.getImageName())) {
-					this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.AddImage, saved.getImageName());
+					this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.AddImage, saved.getImageName());
 				}
 			}
 		} else {
-			this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.Create, JsonUtils.toJson(saved));
-			this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.ChangeState, saved.getArticleState().toString());
+			this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.Create, JsonUtils.toJson(saved));
+			this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.ChangeState, saved.getArticleState().toString());
 			if (saved.getPartnerId() != null) {
 				User newPartner = this.usersService.loadById(saved.getPartnerId());
-				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.GrantAccess, newPartner.getEmail());
+				this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, newPartner.getEmail());
 			}
 			if (StringUtils.notBlank(saved.getImageName())) {
-				this.articleHistoryService.save(saved.getId(), user.getId(), ArticleHistoryAction.AddImage, saved.getImageName());
+				this.articleHistoryService.save(saved.getId(), authenticatedUser.getId(), ArticleHistoryAction.AddImage, saved.getImageName());
+			}
+		}
+
+		// SEND APPROVE REQUEST EMAIL
+		if (saved.getArticleState() != oldState && saved.getArticleState() == ArticleState.Approved) {
+			if (authenticatedUser.getUserRole() == UserRole.Guest) {
+				this.sendApproveRequestEmail(authenticatedUser, this.usersService.loadById(saved.getOwnerId()), article);
 			}
 		}
 
@@ -202,4 +243,5 @@ public class ArticlesService {
 			.map((ncId) -> new ArticleCategory(articleId, ncId))
 			.forEach((ac) -> this.articleCategoryRepository.save(ac));
 	}
+
 }

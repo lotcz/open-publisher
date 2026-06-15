@@ -1,6 +1,5 @@
 package eu.zavadil.openpublisher.api;
 
-import eu.zavadil.java.UrlBuilder;
 import eu.zavadil.java.spring.common.exceptions.BadRequestException;
 import eu.zavadil.java.spring.common.exceptions.NotAuthorizedException;
 import eu.zavadil.java.spring.common.exceptions.ResourceNotFoundException;
@@ -20,7 +19,6 @@ import eu.zavadil.openpublisher.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -201,8 +199,6 @@ public class ArticlesController {
 		ARTICLE GUEST ACCESS
 	 */
 
-	@Value("${server.allowedOrigin}")
-	private String urlBase;
 
 	@Autowired
 	private UsersService usersService;
@@ -247,31 +243,9 @@ public class ArticlesController {
 
 		this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, partner.getEmail());
 
-		String token = this.accessService.createEncodedAccessToken(partner);
-		String url = UrlBuilder.of(this.urlBase)
-			.addPath("clanky/detail")
-			.addPath(article.getId().toString())
-			.addQuery("t", token)
-			.buildAsString();
+		this.articlesService.sendArticleAccessEmail(authenticatedUser, partner, article);
 
-		this.emailService.sendSimpleEmail(
-			partnerEmail,
-			"Pozvánka k editaci článku",
-			String.format(
-				"""
-					Dobrý den,
-					
-					použijte následující odkaz pro editaci článku: %s
-					
-					s pozdravem
-					%s
-					""",
-				url,
-				authenticatedUser.getName()
-			)
-		);
-
-		return url;
+		return this.articlesService.getArticleUrl(article, this.accessService.createEncodedAccessToken(partner));
 	}
 
 }

@@ -94,7 +94,7 @@ export default function ArticleDetail() {
 			.then((f) => {
 				if (updatedCategories) {
 					return restClient.articles
-						.updateArticleCategories(Number(data.id), updatedCategories)
+						.updateArticleCategories(Number(f.id), updatedCategories)
 						.then(() => f);
 				}
 				return f;

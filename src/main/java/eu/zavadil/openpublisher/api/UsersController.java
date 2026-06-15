@@ -120,22 +120,7 @@ public class UsersController {
 		String token = this.accessService.createEncodedAccessToken(user);
 		String url = UrlBuilder.of(this.urlBase).addQuery("t", token).buildAsString();
 
-		this.emailService.sendSimpleEmail(
-			user.getEmail(),
-			"Pozvánka do publikačního systému",
-			String.format(
-				"""
-					Dobrý den,
-					
-					pro přihlášení použijte následující odkaz: %s
-					
-					s pozdravem
-					%s
-					""",
-				url,
-				authenticatedUser.getEmail()
-			)
-		);
+		this.emailService.sendInvitationEmail(authenticatedUser, user, url);
 
 		return url;
 	}

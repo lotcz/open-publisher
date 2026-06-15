@@ -38,6 +38,8 @@ export default function TinyMceInput({initialValue, stickyToolbar = false, heigh
 			skin: userSession.theme === 'dark' ? 'oxide-dark' : undefined,
 			height: height,
 			toolbar_sticky: stickyToolbar,
+			relative_urls: false,
+			remove_script_host: false,
 			images_upload_handler: imageUploadHandler
 		}}
 		onEditorChange={(evt, editor) => onChange(editor.getContent())}
