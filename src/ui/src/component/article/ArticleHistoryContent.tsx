@@ -22,7 +22,7 @@ export default function ArticleHistoryContent({history}: ArticleHistoryContentPr
 
 	if (history.action === 'AddImage') return <ArticleImageThumb name={String(history.content)}/>;
 
-	if (history.action === 'GrantAccess') return <span>{history.content}</span>;
+	if (history.action === 'GrantAccess') return <span>{StringUtil.ellipsis(history.content, 100)}</span>;
 
 	if (history.action === 'RevokeAccess') return <span className="text-strike">{history.content}</span>;
 

@@ -14,8 +14,8 @@ import {ChangePasswordDialogContext} from "../../../util/ChangePasswordDialogCon
 import {WaitingDialogContext} from "../../../util/WaitingDialogContext";
 import UserArticlesList from "./UserArticlesList";
 import UserArticleHistory from "./UserArticleHistory";
-import {useUserSession} from "../../../util/UserSession";
 import {BsEnvelopeAt} from "react-icons/bs";
+import {GrantGuestAccessDialogContext} from "../../../util/GrantGuestAccessDialogContext";
 
 const TAB_PARAM_NAME = "zalozka";
 const DEFAULT_TAB = "clanky";
@@ -24,12 +24,12 @@ export default function UserDetail() {
 	const {id} = useParams();
 	const navigator = useNavigator();
 	const restClient = useRestClient();
-	const userSession = useUserSession();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [activeTab, setActiveTab] = useState<string>();
 	const userAlerts = useContext(UserAlertsContext);
 	const confirmDialog = useContext(ConfirmDialogContext);
 	const changePasswordDialog = useContext(ChangePasswordDialogContext);
+	const grantGuestAccessDialog = useContext(GrantGuestAccessDialogContext);
 	const waitingDialog = useContext(WaitingDialogContext);
 	const [data, setData] = useState<User>();
 	const [valid, setValid] = useState<boolean>(false);
@@ -159,20 +159,20 @@ export default function UserDetail() {
 						</Button>
 						<IconButton
 							icon={<BsEnvelopeAt/>}
-							disabled={changed}
+							disabled={StringUtil.isBlank(data.email) || (!data.id) || changed}
 							variant="warning"
 							onClick={
 								() => {
-									confirmDialog.confirm(
-										'Odeslat pozvánku',
-										`Opravdu si přejete odeslat odkaz pro přihlášení do systému uživateli ${data.email}?`,
-										() => {
-											waitingDialog.show('Probíhá odesílání pozvánky');
-											restClient.users
-												.sendInvitationLink(Number(data.id))
-												.then(() => userAlerts.info('Pozvánka byla odeslána'))
-												.catch((e) => userAlerts.err(e))
-												.finally(() => waitingDialog.hide());
+									grantGuestAccessDialog.show(
+										{
+											name: 'Odeslat pozvánku',
+											text: `Opravdu si přejete odeslat odkaz pro přihlášení do systému uživateli ${data.email}?`,
+											user: data,
+											onClose: () => grantGuestAccessDialog.hide(),
+											onConfirm: (url: string) => {
+												grantGuestAccessDialog.hide();
+												reload();
+											}
 										}
 									);
 								}

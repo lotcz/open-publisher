@@ -112,7 +112,8 @@ public class UsersController {
 	@Secured({UserRole.ADMIN_ROLE_NAME})
 	public String grantGuestAccess(
 		@AuthenticationPrincipal User authenticatedUser,
-		@PathVariable int id
+		@PathVariable int id,
+		@RequestParam(required = false, defaultValue = "false") boolean sendEmail
 	) {
 		User user = this.usersService.loadById(id);
 		if (user == null) throw new ResourceNotFoundException("User", id);
@@ -120,7 +121,9 @@ public class UsersController {
 		String token = this.accessService.createEncodedAccessToken(user);
 		String url = UrlBuilder.of(this.urlBase).addQuery("t", token).buildAsString();
 
-		this.emailService.sendInvitationEmail(authenticatedUser, user, url);
+		if (sendEmail) {
+			this.emailService.sendInvitationEmail(authenticatedUser, user, url);
+		}
 
 		return url;
 	}

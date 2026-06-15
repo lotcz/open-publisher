@@ -39,6 +39,12 @@ public class ArticlesController {
 	@Autowired
 	ArticleHistoryService articleHistoryService;
 
+	@Autowired
+	private UsersService usersService;
+
+	@Autowired
+	private AccessService accessService;
+
 	@GetMapping("")
 	public JsonPage<Article> loadPaged(
 		@AuthenticationPrincipal User user,
@@ -199,22 +205,13 @@ public class ArticlesController {
 		ARTICLE GUEST ACCESS
 	 */
 
-
-	@Autowired
-	private UsersService usersService;
-
-	@Autowired
-	private AccessService accessService;
-
-	@Autowired
-	EmailService emailService;
-
 	@PostMapping("{id}/grant-guest-access/{partnerEmail}")
 	@Secured({UserRole.EDITOR_ROLE_NAME})
 	public String grantGuestAccess(
 		@AuthenticationPrincipal User authenticatedUser,
 		@PathVariable int id,
-		@PathVariable String partnerEmail
+		@PathVariable String partnerEmail,
+		@RequestParam(required = false, defaultValue = "false") boolean sendEmail
 	) {
 		ArticleStub article = this.articlesService.loadById(id);
 		if (article == null) throw new ResourceNotFoundException("Article not found!");
@@ -241,11 +238,16 @@ public class ArticlesController {
 			this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.RevokeAccess, oldPartner.getEmail());
 		}
 
-		this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, partner.getEmail());
+		String linkUrl = this.articlesService.getArticleUrl(article, this.accessService.createEncodedAccessToken(partner));
 
-		this.articlesService.sendArticleAccessEmail(authenticatedUser, partner, article);
+		if (sendEmail) {
+			this.articlesService.sendArticleAccessEmail(authenticatedUser, partner, article);
+			this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, String.format("Email: %s", partner.getEmail()));
+		} else {
+			this.articleHistoryService.save(article.getId(), authenticatedUser.getId(), ArticleHistoryAction.GrantAccess, String.format("Odkaz pro %s: %s", partner.getEmail(), linkUrl));
+		}
 
-		return this.articlesService.getArticleUrl(article, this.accessService.createEncodedAccessToken(partner));
+		return linkUrl;
 	}
 
 }

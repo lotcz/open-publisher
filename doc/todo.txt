@@ -1,6 +1,5 @@
-- categories
 - article gallery
 - wordpress plugin
-- first create a link, then offer to send email
+
 
 

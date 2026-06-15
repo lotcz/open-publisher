@@ -38,8 +38,10 @@ export class ArticlesClient extends EntityClientWithStub<Article, ArticleStub> {
 		return this.client.postFormJson(`${this.name}/import/docx`, formData);
 	}
 
-	grantGuestAccess(articleId: number, partnerEmail: string): Promise<string> {
-		return this.client.post(`${this.name}/${articleId}/grant-guest-access/${partnerEmail}`).then((r) => r.text());
+	grantGuestAccess(articleId: number, partnerEmail: string, sendEmail: boolean): Promise<string> {
+		return this.client
+			.post(`${this.name}/${articleId}/grant-guest-access/${partnerEmail}`, null, {sendEmail})
+			.then((r) => r.text());
 	}
 
 }
