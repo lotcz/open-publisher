@@ -2,7 +2,7 @@ import {Button, Form, Spinner, Stack, Tab, Tabs} from "react-bootstrap";
 import {useParams, useSearchParams} from "react-router";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {EmailUtil, NumberUtil, ObjectUtil, StringUtil} from "zavadil-ts-common";
-import {ConfirmDialogContext, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton, Switch} from "zavadil-react-common";
+import {ConfirmDialogContext, DateTimeInput, DeleteButton, FormRow, FormRowControl, IconButton, SaveButton, Switch} from "zavadil-react-common";
 import {useNavigator} from "../../../navigator/OpAppNavigator";
 import {useRestClient} from "../../../client/OpRestClient";
 import {UserAlertsContext} from "../../../util/UserAlerts";
@@ -63,7 +63,8 @@ export default function UserDetail() {
 				name: "",
 				email: "",
 				userRole: "Guest",
-				isActive: true
+				isActive: true,
+				failedLoginAttempts: 0
 			});
 			return;
 		}
@@ -239,6 +240,53 @@ export default function UserDetail() {
 							/>
 						</Stack>
 					</FormRow>
+
+					<div className="d-flex">
+						<FormRow label="Poslední přihlášení">
+							<DateTimeInput
+								value={data.lastSuccessfulLogin}
+								onChange={(e) => {
+									data.lastSuccessfulLogin = e;
+									onChanged();
+								}}
+							/>
+						</FormRow>
+					</div>
+
+					<div className="d-flex">
+						<FormRow label="Poslední zaslání odkazu">
+							<DateTimeInput
+								value={data.lastLinkSent}
+								onChange={(e) => {
+									data.lastLinkSent = e;
+									onChanged();
+								}}
+							/>
+						</FormRow>
+					</div>
+
+					<div className="d-flex gap-3">
+						<FormRowControl
+							label="Neplatné pokusy o přihlášení"
+							type="number"
+							min={0}
+							max={100}
+							value={data.failedLoginAttempts}
+							onChange={(e) => {
+								data.failedLoginAttempts = Number(e.target.value);
+								onChanged();
+							}}
+						/>
+						<FormRow label="Poslední neplatný pokus o přihlášení">
+							<DateTimeInput
+								value={data.lastFailedLogin}
+								onChange={(e) => {
+									data.lastFailedLogin = e;
+									onChanged();
+								}}
+							/>
+						</FormRow>
+					</div>
 				</Stack>
 			</Form>
 			{

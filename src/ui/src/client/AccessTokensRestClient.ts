@@ -17,4 +17,8 @@ export class AccessTokensRestClient extends RestClient {
 		return this.postJson("renew", {existingToken});
 	}
 
+	forgottenPassword(email: string): Promise<void> {
+		return this.postJson(`forgotten-password/${email}`);
+	}
+
 }

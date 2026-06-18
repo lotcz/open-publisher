@@ -39,7 +39,9 @@ public class EmailService {
 					
 					pro přihlášení do systému použijte následující odkaz: %s
 					
-					s pozdravem
+					Odkaz bude platný 24 hodin.
+					
+					S pozdravem
 					%s
 					""",
 				systemUrl,
@@ -58,7 +60,9 @@ public class EmailService {
 					
 					použijte následující odkaz pro editaci článku: %s
 					
-					s pozdravem
+					Odkaz bude platný 24 hodin.
+					
+					S pozdravem
 					%s
 					""",
 				articleUrl,
@@ -83,6 +87,25 @@ public class EmailService {
 				senderPartner.getName(),
 				articleUrl,
 				this.sender
+			)
+		);
+	}
+
+	public void sendForgottenPasswordEmail(User recipientUser, String systemUrl) {
+		this.sendSimpleEmail(
+			recipientUser.getEmail(),
+			"Zapomenuté heslo",
+			String.format(
+				"""
+					Dobrý den,
+					
+					přihlašte se do systému a nastavte si nové heslo. Pro přihlášení použijte následující odkaz: %s
+					
+					Odkaz bude platný 24 hodin.
+					
+					Přejeme hezký den.
+					""",
+				systemUrl
 			)
 		);
 	}

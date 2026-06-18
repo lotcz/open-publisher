@@ -41,7 +41,9 @@ public class AuthenticationFilter extends GenericFilterBean {
 				JwtAccessToken token = this.accessService.decodeAndVerifyAccessToken(tokenRaw);
 				String subject = token.getSubject();
 				User user = this.usersService.loadByEmail(subject);
-				if (user != null) return new UserAuthentication(user);
+				if (user == null) throw new RuntimeException("User not found");
+				if (!user.isActive()) throw new RuntimeException("User is not active");
+				return new UserAuthentication(user);
 			}
 		} catch (Exception e) {
 			log.warn("Authentication failed", e);

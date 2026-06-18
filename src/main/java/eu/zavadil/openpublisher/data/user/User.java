@@ -12,16 +12,35 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
+import java.time.Instant;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "usr")
 public class User extends EntityWithNameBase {
 
+	final static int MAX_FAILED_LOGIN_ATTEMPTS = 100;
+
 	@JdbcType(PostgreSQLEnumJdbcType.class)
 	private UserRole userRole = UserRole.Guest;
 
 	private String email;
+
+	private Instant lastSuccessfulLogin;
+
+	private Instant lastFailedLogin;
+
+	private Instant lastLinkSent;
+
+	private int failedLoginAttempts = 0;
+
+	public void setFailedLoginAttempts(int failedLoginAttempts) {
+		this.failedLoginAttempts = failedLoginAttempts;
+		if (this.failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+			this.setActive(false);
+		}
+	}
 
 	@JsonProperty(value = "isActive")
 	private boolean active;
